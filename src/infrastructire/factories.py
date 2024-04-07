@@ -1,6 +1,8 @@
 import typing
 
+import aio_pika
 import redis.asyncio as redis
+from aio_pika import abc, pool
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.ext.asyncio import session as sql_session
 
@@ -37,3 +39,12 @@ class RedisClientFactory:
 class SQLAlchemyRepositoryFactory(RepositoryFactory):
     def __call__(self, session: sql_session.AsyncSession):
         return repository.SQLAlchemyRepository(session=session)
+
+
+async def amqp_connection_pool_factory(url: str) -> abc.AbstractRobustConnection:
+    return await aio_pika.connect_robust(url=url)
+
+
+async def amqp_channel_pool_factory(connection_pool: pool.Pool) -> aio_pika.Channel:
+    async with connection_pool.acquire() as connection:
+        return await connection.channel()

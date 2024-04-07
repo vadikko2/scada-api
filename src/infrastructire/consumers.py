@@ -1,8 +1,10 @@
 import asyncio
+import functools
 import typing
-from functools import partial
 
-from aio_pika import Channel, abc, connect_robust, pool
+from aio_pika import abc, pool
+
+from infrastructire import factories
 
 M = typing.TypeVar("M")
 
@@ -10,15 +12,6 @@ M = typing.TypeVar("M")
 class EventConsumer:
     async def consume(self, on_message: typing.Callable[[M], typing.Awaitable[None]]):
         pass
-
-
-async def connection_pool_factory(url: str) -> abc.AbstractRobustConnection:
-    return await connect_robust(url=url)
-
-
-async def channel_pool_factory(connection_pool: pool.Pool) -> Channel:
-    async with connection_pool.acquire() as connection:
-        return await connection.channel()
 
 
 class AMQPConsumer(EventConsumer):
@@ -40,11 +33,11 @@ class AMQPConsumer(EventConsumer):
         self.max_connection_pool_size = max_connection_pool_size
         self.max_channel_pool_size = max_channel_pool_size
         self.connection_pool: pool.Pool = pool.Pool(
-            partial(connection_pool_factory, url=url),
+            functools.partial(factories.amqp_connection_pool_factory, url=url),
             max_size=self.max_connection_pool_size,
         )
         self.channel_pool: pool.Pool = pool.Pool(
-            partial(channel_pool_factory, connection_pool=self.connection_pool),
+            functools.partial(factories.amqp_channel_pool_factory, connection_pool=self.connection_pool),
             max_size=self.max_channel_pool_size,
         )
 
