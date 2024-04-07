@@ -1,0 +1,23 @@
+version: "3"
+services:
+  rabbitmq_dev:
+    image: rabbitmq:3.12.13-management
+    hostname: rabbitmq-dev
+    ports:
+      - 5672:5672
+      - 15672:15672
+  mysql_dev:
+    image: mysql:8.3.0
+    hostname: mysql-dev
+    restart: always
+    environment:
+      MYSQL_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: scada
+      MYSQL_USER: scada_user
+      MYSQL_PASSWORD: scada
+    ports:
+      - 3306:3306
+    command: --init-file /data/application/init.sql
+    volumes:
+      - ./tests/integration/init_database.sql:/data/application/init.sql
