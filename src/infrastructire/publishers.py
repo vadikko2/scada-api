@@ -7,7 +7,7 @@ import fastapi
 from aio_pika import abc, pool
 from orjson import orjson
 
-from infrastructire.consumers import channel_pool_factory, connection_pool_factory
+from infrastructire import factories
 
 M = typing.TypeVar("M")
 C = typing.TypeVar("C")
@@ -44,11 +44,11 @@ class AMQPPublisher:
         self.max_connection_pool_size = max_connection_pool_size
         self.max_channel_pool_size = max_channel_pool_size
         self.connection_pool: pool.Pool = pool.Pool(
-            functools.partial(connection_pool_factory, url=url),
+            functools.partial(factories.amqp_connection_pool_factory, url=url),
             max_size=self.max_connection_pool_size,
         )
         self.channel_pool: pool.Pool = pool.Pool(
-            functools.partial(channel_pool_factory, connection_pool=self.connection_pool),
+            functools.partial(factories.amqp_channel_pool_factory, connection_pool=self.connection_pool),
             max_size=self.max_channel_pool_size,
         )
 
