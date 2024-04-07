@@ -2,6 +2,7 @@ import decimal
 
 import pydantic
 
+from domain import models
 from service_layer.event_driven import requests
 from service_layer.models import validation
 
@@ -27,3 +28,11 @@ class AddDevice(Command):
     tech_nest: int = validation.IdField(description="Идентификатор технического узла")
     name: str = pydantic.Field(description="Наименование устройства")
     model: str | None = pydantic.Field(description="Модель устройства", default=None)
+
+
+class UpdateTechNestIndicators(Command, models.TechNestIndicators):
+    pass
+
+
+class UpdateDeviceIndicators(Command, models.DeviceIndicators):
+    pass

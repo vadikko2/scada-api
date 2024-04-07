@@ -6,7 +6,7 @@ class Event(event_driven.NotificationEvent):
     """Базовый класс события"""
 
 
-class TechNestIndicatorsUpdated(Event, models.TechNestIndicatorsValues):
+class TechNestIndicatorsUpdated(Event, models.TechNestIndicators):
     """Событие об обновлении данных на индикаторах технического узла"""
 
 

@@ -22,13 +22,14 @@ class EventEmitter:
         self._message_broker = message_broker
 
     @functools.singledispatchmethod
-    async def emit(self, event: event.Event) -> None: ...
+    async def emit(self, event: event.Event) -> None:
+        ...
 
     @emit.register
     async def _(self, event: event.DomainEvent) -> None:
         handlers_types = self._event_map.get(type(event))
         if not handlers_types:
-            logging.logger.debug(f"Handler for {event} not found")
+            logging.logger.debug(f"Handler for {type(event).__name__} not found")
         for handler_type in handlers_types:
             handler = await self._container.resolve(handler_type)
             logging.logger.debug(

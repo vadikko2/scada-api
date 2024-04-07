@@ -4,19 +4,20 @@ requires = ["setuptools >= 61.0"]
 
 [project]
 dependencies = [
-    "pydantic-settings==2.2.1",
-    "sqlalchemy[asyncio]",
-    "strawberry-sqlalchemy-mapper==0.4.2",
-    "asyncmy==0.2.9",
-    "cryptography==42.0.2",
-    "aio-pika==9.3.0",
-    "fastapi==0.110.0",
-    "uvicorn[standart]==0.28.0",
-    "di[anyio]==0.79.2",
-    "retry-async==0.1.4",
-    "loguru==0.7.2",
-    "stackprinter==0.2.12",
-    "orjson==3.9.15",
+  "pydantic-settings==2.2.1",
+  "sqlalchemy[asyncio]",
+  "strawberry-sqlalchemy-mapper==0.4.2",
+  "asyncmy==0.2.9",
+  "cryptography==42.0.2",
+  "aio-pika==9.3.0",
+  "fastapi==0.110.0",
+  "uvicorn[standart]==0.28.0",
+  "di[anyio]==0.79.2",
+  "retry-async==0.1.4",
+  "loguru==0.7.2",
+  "stackprinter==0.2.12",
+  "orjson==3.9.15",
+  "redis==5.0.3"
 ]
 name = "scada_api"
 requires-python = ">= 3.10"
@@ -24,18 +25,18 @@ version = "0.0.1"
 
 [project.optional-dependencies]
 git = [
-    "pre-commit",
-    "jq"
+  "pre-commit",
+  "jq"
 ]
 lint = [
-    "flake8==7.0.0",
-    "flake8-pytest"
+  "flake8==7.0.0",
+  "flake8-pytest"
 ]
 tests = [
-    "pytest~=7.4.2",
-    "pytest-env==0.6.2",
-    "pytest-asyncio~=0.21.1",
-    "Faker==21.0.0",
+  "pytest~=7.4.2",
+  "pytest-env==0.6.2",
+  "pytest-asyncio~=0.21.1",
+  "Faker==21.0.0"
 ]
 
 [tool.pytest.ini_options]
@@ -43,11 +44,11 @@ addopts = "--junit-xml=report.xml"
 asyncio_mode = "auto"
 junit_family = "xunit1"
 testpaths = [
-    "tests"
+  "tests"
 ]
 
 [tool.setuptools.packages.find]
 include = [
-    "crud"
+  "crud"
 ]
 where = ["src"]

@@ -1,23 +1,24 @@
 import typing
 
 import di
-from di import dependent
 
-from infrastructire import settings, orm
-from service_layer import dependencies
-from service_layer import event_driven
-from service_layer.event_driven.middlewares import logging as logging_middleware
-from service_layer.event_driven import requests, events
-from service_layer.event_driven.message_brokers import protocol, amqp
-from service_layer.models import queries, commands
-from service_layer.handlers import queries as query_handlers, commands as command_handlers
+from infrastructire import settings
+from service_layer import dependencies, event_driven
+from service_layer.event_driven import events, requests
 from service_layer.event_driven.container import di as ed_di_container
+from service_layer.event_driven.message_brokers import amqp, protocol
 from service_layer.event_driven.middlewares import base as mediator_middlewares
+from service_layer.event_driven.middlewares import logging as logging_middleware
+from service_layer.handlers import commands as command_handlers
+from service_layer.handlers import queries as query_handlers
+from service_layer.models import commands, queries
 
 
 def init_commands(mapper: requests.RequestMap):
     """Инициализирует обработчики команд"""
     mapper.bind(commands.CreateHolder, command_handlers.CreateHolderHandler)
+    mapper.bind(commands.UpdateTechNestIndicators, command_handlers.UpdateTechNestIndicatorsHandler)
+    mapper.bind(commands.UpdateDeviceIndicators, command_handlers.UpdatedDeviceIndicatorsHandler)
 
 
 def init_events(mapper: events.EventMap):
