@@ -1,5 +1,5 @@
-from service_layer.event_driven import container, middlewares, requests
-from service_layer.event_driven.dispatcher import dispatch_result
+from service_layer.cqrs import container, middlewares, requests
+from service_layer.cqrs.dispatcher import dispatch_result
 
 
 class DefaultDispatcher:

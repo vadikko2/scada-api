@@ -1,8 +1,8 @@
 import aio_pika
 import orjson
 
-from infrastructire import amqp, settings
-from service_layer.event_driven.message_brokers import protocol
+from infrastructire import publishers, settings
+from service_layer.cqrs.message_brokers import protocol
 
 
 class AMQPMessageBroker:
@@ -13,7 +13,7 @@ class AMQPMessageBroker:
         exchange_name: str = None,
     ):
         amqp_settings = settings.Amqp()
-        self.publisher = amqp.AMQPPublisher(url=url)
+        self.publisher = publishers.AMQPPublisher(url=url)
         self.routing_key = routing_key or amqp_settings.EVENTS_ROUTEING_KEY
         self.exchange_name = exchange_name or amqp_settings.EVENTS_EXCHANGE
 

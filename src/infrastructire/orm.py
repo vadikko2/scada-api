@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from infrastructire import logging
 import sqlalchemy
 from sqlalchemy import orm
 
 from domain import models
+from infrastructire import logging
 
 mapper_registry = orm.registry()
 
@@ -110,6 +110,11 @@ device = sqlalchemy.Table(
         sqlalchemy.String(255),
         nullable=False,
         comment="Модель устройства",
+    ),
+    sqlalchemy.Column(
+        "nest_id",
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("tech_nests.id"),
     ),
 )
 

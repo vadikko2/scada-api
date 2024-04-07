@@ -1,8 +1,8 @@
 import collections
 import typing
 
-from service_layer.event_driven import registry
-from service_layer.event_driven.events import event, event_handler
+from service_layer.cqrs import registry
+from service_layer.cqrs.events import event, event_handler
 
 E = typing.TypeVar("E", bound=event.DomainEvent, contravariant=True)
 

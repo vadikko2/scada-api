@@ -1,7 +1,7 @@
 import functools
 import typing
 
-from service_layer.event_driven import requests, response
+from service_layer.cqrs import requests, response
 
 Req = typing.TypeVar("Req", bound=requests.Request, contravariant=True)
 Res = typing.TypeVar("Res", response.Response, None, covariant=True)
@@ -9,7 +9,8 @@ HandleType = typing.Callable[[Req], typing.Awaitable[Res]]
 
 
 class Middleware(typing.Protocol):
-    async def __call__(self, request: requests.Request, handle: HandleType) -> Res: ...
+    async def __call__(self, request: requests.Request, handle: HandleType) -> Res:
+        ...
 
 
 class MiddlewareChain:

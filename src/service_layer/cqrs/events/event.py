@@ -4,7 +4,8 @@ import uuid
 import pydantic
 
 
-class Event(pydantic.BaseModel): ...
+class Event(pydantic.BaseModel):
+    ...
 
 
 class DomainEvent(Event):

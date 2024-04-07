@@ -1,6 +1,6 @@
 import typing
 
-from service_layer.event_driven.events import event
+from service_layer.cqrs.events import event
 
 E = typing.TypeVar("E", bound=event.DomainEvent, contravariant=True)
 

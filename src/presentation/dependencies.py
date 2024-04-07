@@ -5,11 +5,11 @@ import uuid
 import fastapi
 
 from infrastructire import consumers, publishers, settings
-from service_layer import bootstrap, event_driven
+from service_layer import bootstrap, cqrs
 
 
 @functools.lru_cache
-def inject_mediator() -> event_driven.Mediator:
+def inject_mediator() -> cqrs.Mediator:
     return bootstrap.bootstrap()
 
 

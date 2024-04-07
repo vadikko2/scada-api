@@ -86,6 +86,7 @@ class DeviceIndicatorsValues(pydantic.BaseModel):
     """Значения на индикаторах устройства"""
 
     ammeter: AmmeterValue = pydantic.Field(description="Значение силы тока")
+    mode: ModeEnum = pydantic.Field(description="Режим работы", default=ModeEnum.MANUAL)
 
 
 class DeviceIndicators(pydantic.BaseModel):

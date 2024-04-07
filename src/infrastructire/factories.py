@@ -1,20 +1,22 @@
 import typing
 
+import redis.asyncio as redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.ext.asyncio import session as sql_session
 
-from infrastructire import settings, repository
+from infrastructire import repository, settings
 
 S = typing.TypeVar("S")
 
 
 class SessionFactory(typing.Protocol[S]):
-
-    def __call__(self) -> S: ...
+    def __call__(self) -> S:
+        ...
 
 
 class RepositoryFactory(typing.Protocol[S]):
-    def __call__(self, session: S) -> repository.Repository: ...
+    def __call__(self, session: S) -> repository.Repository:
+        ...
 
 
 class SQLAlchemySessionFactory(SessionFactory):
@@ -25,6 +27,11 @@ class SQLAlchemySessionFactory(SessionFactory):
                 isolation_level="REPEATABLE READ",
             )
         )()
+
+
+class RedisClientFactory:
+    def __call__(self) -> redis.Redis:
+        return redis.Redis.from_url(settings.get_redis_url())
 
 
 class SQLAlchemyRepositoryFactory(RepositoryFactory):

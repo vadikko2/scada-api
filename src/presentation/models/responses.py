@@ -1,7 +1,8 @@
 import typing
 
 import pydantic
-from service_layer.event_driven import response
+
+from service_layer.cqrs import response
 
 __all__ = (
     "ResponseMulti",

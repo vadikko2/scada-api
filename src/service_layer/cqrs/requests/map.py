@@ -1,7 +1,7 @@
 import typing
 
-from service_layer.event_driven import registry
-from service_layer.event_driven.requests import request, request_handler
+from service_layer.cqrs import registry
+from service_layer.cqrs.requests import request, request_handler
 
 TReq = typing.TypeVar("TReq", bound=typing.Type[request.Request], contravariant=True)
 TH = typing.TypeVar("TH", bound=typing.Type[request_handler.RequestHandler], contravariant=True)
@@ -26,4 +26,5 @@ class RequestMap(registry.InMemoryRegistry[TReq, TH]):
         return str(self._registry)
 
 
-class RequestHandlerDoesNotExist(Exception): ...
+class RequestHandlerDoesNotExist(Exception):
+    ...

@@ -3,7 +3,7 @@ import decimal
 import pydantic
 
 from domain import models
-from service_layer.event_driven import requests
+from service_layer.cqrs import requests
 from service_layer.models import validation
 
 

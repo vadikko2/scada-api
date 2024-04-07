@@ -26,8 +26,8 @@ services:
     hostname: redis-dev
     ports:
     - 6379:6379
-    environment:
-      REDIS_ARGS: --requirepass scada-api --user scada-api
+#    environment:
+#      REDIS_ARGS: --requirepass scada-api --user scada-api
     healthcheck:
       test: [CMD, redis-cli, ping]
       interval: 5s

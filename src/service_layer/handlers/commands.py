@@ -1,7 +1,8 @@
 from domain import models
+from infrastructire import storages
 from infrastructire import uow as unit_of_work
-from service_layer.event_driven import requests
-from service_layer.event_driven.events import event
+from service_layer.cqrs import requests
+from service_layer.cqrs.events import event
 from service_layer.models import commands, events, responses
 
 
@@ -21,7 +22,8 @@ class CreateHolderHandler(requests.RequestHandler[commands.CreateHolder, respons
 
 
 class UpdateTechNestIndicatorsHandler(requests.RequestHandler[commands.UpdateTechNestIndicators, None]):
-    def __init__(self):
+    def __init__(self, storage: storages.TechNestIndicatorValuesStorage):
+        self.storage = storage
         self._events = []
 
     @property
@@ -29,6 +31,7 @@ class UpdateTechNestIndicatorsHandler(requests.RequestHandler[commands.UpdateTec
         return self._events
 
     async def handle(self, command: commands.UpdateTechNestIndicators) -> None:
+        await self.storage.set_value(command.tech_nest_id, command.body)
         self._events.append(
             events.TechNestIndicatorsUpdated(
                 tech_nest_id=command.tech_nest_id,
@@ -38,7 +41,8 @@ class UpdateTechNestIndicatorsHandler(requests.RequestHandler[commands.UpdateTec
 
 
 class UpdatedDeviceIndicatorsHandler(requests.RequestHandler[commands.UpdateDeviceIndicators, None]):
-    def __init__(self):
+    def __init__(self, storage: storages.DeviceIndicatorValuesStorage):
+        self.storage = storage
         self._events = []
 
     @property
@@ -46,6 +50,7 @@ class UpdatedDeviceIndicatorsHandler(requests.RequestHandler[commands.UpdateDevi
         return self._events
 
     async def handle(self, command: commands.UpdateDeviceIndicators) -> None:
+        await self.storage.set_value(command.device_id, command.body)
         self._events.append(
             events.DeviceIndicatorsUpdated(
                 tech_nest_id=command.tech_nest_id,

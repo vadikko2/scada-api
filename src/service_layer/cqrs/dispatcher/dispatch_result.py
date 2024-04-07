@@ -1,7 +1,7 @@
 import pydantic
 
-from service_layer.event_driven import response as res
-from service_layer.event_driven.events import event
+from service_layer.cqrs import response as res
+from service_layer.cqrs.events import event
 
 
 class DispatchResult(pydantic.BaseModel):

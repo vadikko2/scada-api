@@ -1,10 +1,8 @@
 import logging
-
-from infrastructire import logging as log
 import typing
 
-from service_layer.event_driven import requests, response
-
+from infrastructire import logging as log
+from service_layer.cqrs import requests, response
 
 Req = typing.TypeVar("Req", bound=requests.Request, contravariant=True)
 Res = typing.TypeVar("Res", response.Response, None, covariant=True)

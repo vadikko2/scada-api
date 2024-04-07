@@ -3,12 +3,12 @@ import typing
 import di
 
 from infrastructire import settings
-from service_layer import dependencies, event_driven
-from service_layer.event_driven import events, requests
-from service_layer.event_driven.container import di as ed_di_container
-from service_layer.event_driven.message_brokers import amqp, protocol
-from service_layer.event_driven.middlewares import base as mediator_middlewares
-from service_layer.event_driven.middlewares import logging as logging_middleware
+from service_layer import cqrs, dependencies
+from service_layer.cqrs import events, requests
+from service_layer.cqrs.container import di as ed_di_container
+from service_layer.cqrs.message_brokers import amqp, protocol
+from service_layer.cqrs.middlewares import base as mediator_middlewares
+from service_layer.cqrs.middlewares import logging as logging_middleware
 from service_layer.handlers import commands as command_handlers
 from service_layer.handlers import queries as query_handlers
 from service_layer.models import commands, queries
@@ -27,7 +27,8 @@ def init_events(mapper: events.EventMap):
 
 def init_queries(mapper: requests.RequestMap):
     """Инициализирует обработчики запросов"""
-    mapper.bind(queries.HolderTechNests, query_handlers.GetHolderTechNestsHandler)
+    mapper.bind(queries.TechNests, query_handlers.GetTechNestsHandler)
+    mapper.bind(queries.Devices, query_handlers.GetDevicesHandler)
 
 
 def setup_mediator(
@@ -37,7 +38,7 @@ def setup_mediator(
     commands_mapper: typing.Callable[[requests.RequestMap], None] = init_commands,
     events_mapper: typing.Callable[[events.EventMap], None] = init_events,
     queries_mapper: typing.Callable[[requests.RequestMap], None] = init_queries,
-) -> event_driven.Mediator:
+) -> cqrs.Mediator:
     container = ed_di_container.DIContainer()
     container.attach_external_container(external_container)
 
@@ -60,7 +61,7 @@ def setup_mediator(
     for middleware in middlewares:
         middleware_chain.add(middleware)
 
-    return event_driven.Mediator(
+    return cqrs.Mediator(
         event_emitter=event_emitter,
         request_map=requests_mapper,
         container=container,
@@ -78,7 +79,7 @@ def bootstrap(
     commands_mapper: typing.Callable[[requests.RequestMap], None] = init_commands,
     events_mapper: typing.Callable[[events.EventMap], None] = init_events,
     queries_mapper: typing.Callable[[requests.RequestMap], None] = init_queries,
-) -> event_driven.Mediator:
+) -> cqrs.Mediator:
     if message_broker is None:
         message_broker = DEFAULT_MESSAGE_BROKER
     if di_container is None:

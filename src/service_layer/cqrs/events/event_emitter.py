@@ -1,8 +1,8 @@
 import functools
 
 from infrastructire import logging
-from service_layer.event_driven import container, message_brokers
-from service_layer.event_driven.events import event, map
+from service_layer.cqrs import container, message_brokers
+from service_layer.cqrs.events import event, map
 
 
 class EventEmitter:

@@ -1,8 +1,8 @@
 import typing
 
-from service_layer.event_driven import response
-from service_layer.event_driven.events import event
-from service_layer.event_driven.requests import request
+from service_layer.cqrs import response
+from service_layer.cqrs.events import event
+from service_layer.cqrs.requests import request
 
 Req = typing.TypeVar("Req", bound=request.Request, contravariant=True)
 Res = typing.TypeVar("Res", response.Response, None, covariant=True)
@@ -38,7 +38,8 @@ class RequestHandler(typing.Protocol[Req, Res]):
     """
 
     @property
-    def events(self) -> list[event.Event]: ...
+    def events(self) -> list[event.Event]:
+        ...
 
     async def handle(self, request: Req) -> Res:
         raise NotImplementedError

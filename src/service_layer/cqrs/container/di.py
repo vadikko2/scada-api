@@ -3,7 +3,7 @@ import typing
 import di
 from di import dependent, executors
 
-from service_layer.event_driven import container
+from service_layer.cqrs import container
 
 T = typing.TypeVar("T")
 
