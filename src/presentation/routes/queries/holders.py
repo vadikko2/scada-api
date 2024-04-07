@@ -10,13 +10,13 @@ import fastapi
 
 router = fastapi.APIRouter(
     prefix="/holders",
-    tags=["Tech nests holders"],
+    tags=["Владельцы-компании технических узлов", "Queries"],
 )
 
 
 @router.get("/{holder}/nests", status_code=status.HTTP_200_OK)
 async def get_nests(
-    holder: typing.Annotated[int, paths.HolderIdPath()],
+    holder: typing.Annotated[int, paths.IdPath()],
     mediator: event_driven.Mediator = fastapi.Depends(dependencies.inject_mediator),
 ) -> pres_responses.Response[service_responses.TechNests]:
     """
@@ -28,7 +28,7 @@ async def get_nests(
 
 @router.get("/{holder}", status_code=status.HTTP_200_OK)
 async def get_holder(
-    holder: typing.Annotated[int, paths.HolderIdPath()],
+    holder: typing.Annotated[int, paths.IdPath()],
     mediator: event_driven.Mediator = fastapi.Depends(dependencies.inject_mediator),
 ) -> pres_responses.Response[service_responses.Holder]:
     """Возвращает информацию о владельце технических узлов"""

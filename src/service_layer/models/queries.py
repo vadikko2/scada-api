@@ -1,3 +1,5 @@
+import uuid
+
 import pydantic
 
 from service_layer.event_driven import requests

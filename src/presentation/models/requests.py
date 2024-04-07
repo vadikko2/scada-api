@@ -10,7 +10,7 @@ Q = typing.TypeVar("Q", bound=queries.Query, covariant=True)
 
 
 class EventRequest(pydantic.BaseModel, typing.Generic[E]):
-    body: Q
+    body: E
 
 
 class CommandRequest(pydantic.BaseModel, typing.Generic[C]):

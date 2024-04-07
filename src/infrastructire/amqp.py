@@ -2,7 +2,7 @@ import asyncio
 import typing
 from functools import partial
 
-from aio_pika import Channel, Exchange, Queue, abc, connect_robust, pool
+from aio_pika import Channel, Exchange, abc, connect_robust, pool
 
 
 async def connection_pool_factory(url: str) -> abc.AbstractRobustConnection:
@@ -28,12 +28,10 @@ class AMQPPublisher:
             max_size=self.max_channel_pool_size,
         )
 
-    async def publish(self, message: abc.AbstractMessage, queue_name: str, exchange_name: str) -> None:
+    async def publish(self, message: abc.AbstractMessage, routing_key: str, exchange_name: str) -> None:
         async with self.channel_pool.acquire() as channel:
-            queue: Queue = await channel.declare_queue(queue_name)
             exchange: Exchange = await channel.declare_exchange(exchange_name, type="direct", auto_delete=True)
-            await queue.bind(exchange=exchange, routing_key=queue_name)
-            await exchange.publish(message=message, routing_key=queue_name)
+            await exchange.publish(message=message, routing_key=routing_key)
 
 
 class AMQPConsumer:

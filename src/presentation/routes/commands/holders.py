@@ -8,7 +8,7 @@ from service_layer.models import commands, responses as service_responses
 
 router = fastapi.APIRouter(
     prefix="/holders",
-    tags=["Tech nests holders"],
+    tags=["Владельцы-компании технических узлов", "Commands"],
 )
 
 

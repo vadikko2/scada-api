@@ -1,5 +1,3 @@
-import pydantic
-
 from domain import models
 
 from service_layer.event_driven import response

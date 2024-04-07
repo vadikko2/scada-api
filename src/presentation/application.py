@@ -23,6 +23,8 @@ def create(
     *_,
     command_routers: typing.Iterable[fastapi.APIRouter],
     query_routers: typing.Iterable[fastapi.APIRouter],
+    events_routers: typing.Iterable[fastapi.APIRouter],
+    subscription_routers: typing.Iterable[fastapi.APIRouter],
     middlewares: typing.Iterable[MiddlewareAlias] | None = None,
     startup_tasks: typing.Iterable[typing.Callable[[], typing.Coroutine]] | None = None,
     shutdown_tasks: typing.Iterable[typing.Callable[[], typing.Coroutine]] | None = None,
@@ -39,7 +41,10 @@ def create(
         app.include_router(router)
     for router in query_routers:
         app.include_router(router)
-
+    for router in subscription_routers:
+        app.include_router(router)
+    for router in events_routers:
+        app.include_router(router)
     # Расширяет default обработчики ошибок FastAPI
     pass
 

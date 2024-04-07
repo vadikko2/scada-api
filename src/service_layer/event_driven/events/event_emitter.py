@@ -1,10 +1,8 @@
 import functools
-import logging
 
+from infrastructire import logging
 from service_layer.event_driven import container, message_brokers
 from service_layer.event_driven.events import event, map
-
-logger = logging.getLogger(__name__)
 
 
 class EventEmitter:
@@ -29,10 +27,11 @@ class EventEmitter:
     @emit.register
     async def _(self, event: event.DomainEvent) -> None:
         handlers_types = self._event_map.get(type(event))
-
+        if not handlers_types:
+            logging.logger.debug(f"Handler for {event} not found")
         for handler_type in handlers_types:
             handler = await self._container.resolve(handler_type)
-            logger.debug(
+            logging.logger.debug(
                 "Handling Event(%s) via event handler(%s)",
                 type(event).__name__,
                 handler_type.__name__,
@@ -46,7 +45,7 @@ class EventEmitter:
 
         message = _build_message(event)
 
-        logger.debug(
+        logging.logger.debug(
             "Sending Notification Event(%s) to message broker %s",
             event.event_id,
             type(self._message_broker).__name__,
@@ -61,7 +60,7 @@ class EventEmitter:
 
         message = _build_message(event)
 
-        logger.debug(
+        logging.logger.debug(
             "Sending ECST event(%s) to message broker %s",
             event.event_id,
             type(self._message_broker).__name__,
