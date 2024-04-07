@@ -1,11 +1,11 @@
-version: "3"
+version: '3'
 services:
   rabbitmq_dev:
     image: rabbitmq:3.12.13-management
     hostname: rabbitmq-dev
     ports:
-      - 5672:5672
-      - 15672:15672
+    - 5672:5672
+    - 15672:15672
   mysql_dev:
     image: mysql:8.3.0
     hostname: mysql-dev
@@ -17,7 +17,19 @@ services:
       MYSQL_USER: scada_user
       MYSQL_PASSWORD: scada
     ports:
-      - 3306:3306
+    - 3306:3306
     command: --init-file /data/application/init.sql
     volumes:
-      - ./tests/integration/init_database.sql:/data/application/init.sql
+    - ./tests/integration/init_database.sql:/data/application/init.sql
+  redis_dev:
+    image: redis/redis-stack-server:latest
+    hostname: redis-dev
+    ports:
+    - 6379:6379
+    environment:
+      REDIS_ARGS: --requirepass scada-api --user scada-api
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 5s
+      retries: 3
