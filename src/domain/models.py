@@ -63,7 +63,7 @@ VT = typing.TypeVar("VT")
 
 
 class IndicatorValue(pydantic.BaseModel, typing.Generic[VT]):
-    unit: typing.ClassVar[str]
+    unit: str
     value: VT = pydantic.Field(description="Значение на индикаторе")
 
 
@@ -79,7 +79,7 @@ class TechNestIndicators(pydantic.BaseModel):
 
 
 class AmmeterValue(IndicatorValue[decimal.Decimal]):
-    unit = "Amper"
+    unit: str = "Ампер"
 
 
 class DeviceIndicatorsValues(pydantic.BaseModel):

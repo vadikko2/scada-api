@@ -4,6 +4,8 @@ from functools import partial
 
 from aio_pika import Channel, Exchange, abc, connect_robust, pool
 
+from infrastructire import consumers
+
 
 async def connection_pool_factory(url: str) -> abc.AbstractRobustConnection:
     return await connect_robust(url=url)
@@ -30,13 +32,26 @@ class AMQPPublisher:
 
     async def publish(self, message: abc.AbstractMessage, routing_key: str, exchange_name: str) -> None:
         async with self.channel_pool.acquire() as channel:
-            exchange: Exchange = await channel.declare_exchange(exchange_name, type="direct", auto_delete=True)
+            exchange: Exchange = await channel.declare_exchange(exchange_name, type="topic", auto_delete=False)
             await exchange.publish(message=message, routing_key=routing_key)
 
 
-class AMQPConsumer:
-    def __init__(self, url: str, max_connection_pool_size=2, max_channel_pool_size=10):
+class AMQPConsumer(consumers.EventConsumer):
+    def __init__(
+        self,
+        url: str,
+        exchange_name: str,
+        routing_key: str,
+        queue_name: str,
+        max_connection_pool_size=2,
+        max_channel_pool_size=10,
+    ):
         self.url = url
+        self.exchange_name = exchange_name
+        self.routing_key = routing_key
+        self.queue_name = queue_name
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         self.max_connection_pool_size = max_connection_pool_size
         self.max_channel_pool_size = max_channel_pool_size
         self.connection_pool: pool.Pool = pool.Pool(
@@ -48,13 +63,12 @@ class AMQPConsumer:
             max_size=self.max_channel_pool_size,
         )
 
-    async def consume(
-        self,
-        handler: typing.Callable[[abc.AbstractIncomingMessage], typing.Awaitable[None]],
-        queue_name: str,
-    ) -> None:
+    async def consume(self, on_message: typing.Callable[[abc.AbstractIncomingMessage], typing.Awaitable[None]]):
         async with self.channel_pool.acquire() as channel:
             await channel.set_qos(prefetch_count=1)
-            queue = await channel.declare_queue(queue_name)
-            await queue.consume(handler)
-            await asyncio.Future()
+            exchange = await channel.declare_exchange(self.exchange_name, type="topic")
+            queue = await channel.declare_queue(self.queue_name, auto_delete=False)
+            await queue.bind(exchange, self.routing_key)
+            async with queue.iterator() as queue_iter:
+                async for message in queue_iter:
+                    await on_message(message)
