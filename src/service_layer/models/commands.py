@@ -25,7 +25,7 @@ class AddTechNest(Command):
 
 
 class AddDevice(Command):
-    tech_nest: int = validation.IdField(description="Идентификатор технического узла")
+    nest: int = validation.IdField(description="Идентификатор технического узла")
     name: str = pydantic.Field(description="Наименование устройства")
     model: str | None = pydantic.Field(description="Модель устройства", default=None)
 

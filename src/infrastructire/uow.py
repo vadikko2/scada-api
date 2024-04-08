@@ -33,17 +33,19 @@ class UoW(typing.Generic[R, S], abc.ABC):
             await self._close()
 
     @abc.abstractmethod
-    async def commit(self): ...
+    async def commit(self):
+        ...
 
     @abc.abstractmethod
-    async def rollback(self): ...
+    async def rollback(self):
+        ...
 
     @abc.abstractmethod
-    async def _close(self): ...
+    async def _close(self):
+        ...
 
 
 class SQLAlchemyUoW(UoW[repository.SQLAlchemyRepository, sql_session.AsyncSession]):
-
     async def commit(self):
         try:
             await self.session.commit()
@@ -57,4 +59,4 @@ class SQLAlchemyUoW(UoW[repository.SQLAlchemyRepository, sql_session.AsyncSessio
     async def _close(self):
         session = getattr(self, "session", None)
         if session:
-            session.close()
+            await session.close()

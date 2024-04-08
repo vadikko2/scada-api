@@ -19,6 +19,8 @@ def init_commands(mapper: requests.RequestMap):
     mapper.bind(commands.CreateHolder, command_handlers.CreateHolderHandler)
     mapper.bind(commands.UpdateTechNestIndicators, command_handlers.UpdateTechNestIndicatorsHandler)
     mapper.bind(commands.UpdateDeviceIndicators, command_handlers.UpdatedDeviceIndicatorsHandler)
+    mapper.bind(commands.AddTechNest, command_handlers.AddTechNestHandler)
+    mapper.bind(commands.AddDevice, command_handlers.AddDeviceHandler)
 
 
 def init_events(mapper: events.EventMap):
@@ -27,6 +29,7 @@ def init_events(mapper: events.EventMap):
 
 def init_queries(mapper: requests.RequestMap):
     """Инициализирует обработчики запросов"""
+    mapper.bind(queries.Holder, query_handlers.GetHolderHandler)
     mapper.bind(queries.TechNests, query_handlers.GetTechNestsHandler)
     mapper.bind(queries.Devices, query_handlers.GetDevicesHandler)
 

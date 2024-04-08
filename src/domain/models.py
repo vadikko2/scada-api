@@ -16,12 +16,12 @@ class ModeEnum(enum.Enum):
 class TechNest(pydantic.BaseModel):
     """Технический узел"""
 
-    id: int | None = pydantic.Field(description="Идентификатор технического узла")
+    id: int | None = pydantic.Field(description="Идентификатор технического узла", default=None)
     devices: list[Device] = pydantic.Field(
         description="Набор устройств в узле",
         default_factory=list,
     )
-    holder: int = pydantic.Field(description="Владелец технического узла")
+    holder_id: int = pydantic.Field(description="Владелец технического узла")
     location: TechNestLocation = pydantic.Field(description="Местоположение")
 
     model_config = pydantic.ConfigDict(from_attributes=True)
@@ -30,7 +30,7 @@ class TechNest(pydantic.BaseModel):
 class TechNestLocation(pydantic.BaseModel):
     """Локация технического узла"""
 
-    id: int | None = pydantic.Field(description="Идентификатор локации")
+    id: int | None = pydantic.Field(description="Идентификатор локации", default=None)
     latitude: decimal.Decimal
     longitude: decimal.Decimal
     address: str
@@ -41,7 +41,7 @@ class TechNestLocation(pydantic.BaseModel):
 class Company(pydantic.BaseModel):
     """Компания владелец технического узла"""
 
-    id: int | None = pydantic.Field(description="Идентификатор компании")
+    id: int | None = pydantic.Field(description="Идентификатор компании", default=None)
     name: str = pydantic.Field(description="Наименование организации")
     inn: int = pydantic.Field(description="ИНН организации")
     kpp: int = pydantic.Field(description="КПП организации")
@@ -52,9 +52,10 @@ class Company(pydantic.BaseModel):
 class Device(pydantic.BaseModel):
     """Устройство на техническом узле"""
 
-    id: int | None = pydantic.Field(description="Идентификатор устройства")
+    id: int | None = pydantic.Field(description="Идентификатор устройства", default=None)
     name: str = pydantic.Field(description="Наименование устройства")
     model: str | None = pydantic.Field(description="Модель устройства", default=None)
+    nest_id: int
 
     model_config = pydantic.ConfigDict(from_attributes=True)
 

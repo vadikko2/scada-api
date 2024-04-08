@@ -4,7 +4,7 @@ from service_layer.cqrs.events import event
 from service_layer.models import queries, responses
 
 
-class GetHolderHandler(requests.RequestHandler[queries.Holder, responses.Holder]):
+class GetHolderHandler(requests.RequestHandler[queries.Holder, responses.Holder | None]):
     """
     Обрабатывает запросы на получение данных о владельце технического узла
     """
@@ -16,7 +16,7 @@ class GetHolderHandler(requests.RequestHandler[queries.Holder, responses.Holder]
     def events(self) -> list[event.Event]:
         return []
 
-    async def handle(self, request: queries.Holder) -> responses.Holder:
+    async def handle(self, request: queries.Holder) -> responses.Holder | None:
         async with self.uow.transaction() as uow:
             holder_info = await uow.repository.get_holder(request.holder)
             return responses.Holder(**holder_info.model_dump(mode="json"))
@@ -50,5 +50,5 @@ class GetDevicesHandler(requests.RequestHandler[queries.Devices, responses.Devic
 
     async def handle(self, request: queries.Devices) -> responses.Devices:
         async with self.uow.transaction() as uow:
-            nests = await uow.repository.get_devices(request.tech_nest)
-            return responses.Devices(tech_nest=request.tech_nest, devices=nests)
+            devices = await uow.repository.get_devices(request.tech_nest)
+            return responses.Devices(tech_nest=request.tech_nest, devices=devices)

@@ -4,6 +4,7 @@ from infrastructire import orm, settings
 from presentation import application
 from presentation.routes.commands import holders as holder_commands
 from presentation.routes.commands import indicators as indicators_events
+from presentation.routes.commands import tech_nests as nests_commands
 from presentation.routes.queries import holders, tech_nests
 from presentation.routes.subscriptions import tech_nests as tech_nests_sub
 
@@ -12,6 +13,7 @@ app: fastapi.FastAPI = application.create(
     command_routers=(
         holder_commands.router,
         indicators_events.router,
+        nests_commands.router,
     ),
     query_routers=(
         holders.router,
