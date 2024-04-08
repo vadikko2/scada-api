@@ -36,3 +36,11 @@ class UpdateTechNestIndicators(Command, models.TechNestIndicators):
 
 class UpdateDeviceIndicators(Command, models.DeviceIndicators):
     pass
+
+
+class PublishTargetIndicators(Command):
+    """
+    Команда на публикацию текущих значений индикаторов технического узла и устройств на нем
+    """
+
+    nest: int = validation.IdField(description="Идентификатор технического узла")

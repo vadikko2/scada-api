@@ -1,5 +1,14 @@
 version: '3'
 services:
+  scada-api:
+    build: .
+    container_name: scada-api
+    environment:
+      PORT: 80
+    ports:
+    - 80:80
+    restart: no
+
   rabbitmq_dev:
     image: rabbitmq:3.12.13-management
     hostname: rabbitmq-dev

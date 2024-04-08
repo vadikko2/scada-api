@@ -7,6 +7,8 @@ from service_layer.models import commands, events, responses
 
 
 class CreateHolderHandler(requests.RequestHandler[commands.CreateHolder, responses.HolderCreated]):
+    """Создает новую компанию владельца"""
+
     def __init__(self, uow: unit_of_work.UoW):
         self.uow = uow
 
@@ -23,6 +25,8 @@ class CreateHolderHandler(requests.RequestHandler[commands.CreateHolder, respons
 
 
 class AddTechNestHandler(requests.RequestHandler[commands.AddTechNest, responses.TechNestAdded]):
+    """Добавляет новый технический узел"""
+
     def __init__(self, uow: unit_of_work.UoW):
         self.uow = uow
 
@@ -63,6 +67,8 @@ class AddDeviceHandler(requests.RequestHandler[commands.AddDevice, responses.Dev
 
 
 class UpdateTechNestIndicatorsHandler(requests.RequestHandler[commands.UpdateTechNestIndicators, None]):
+    """Обновляет данные индикаторов технического узла"""
+
     def __init__(self, storage: storages.TechNestIndicatorValuesStorage):
         self.storage = storage
         self._events = []
@@ -72,6 +78,7 @@ class UpdateTechNestIndicatorsHandler(requests.RequestHandler[commands.UpdateTec
         return self._events
 
     async def handle(self, request: commands.UpdateTechNestIndicators) -> None:
+        # TODO добавить проверку существования узла
         await self.storage.set_value(request.tech_nest_id, request.body)
         self._events.append(
             events.TechNestIndicatorsUpdated(
@@ -82,6 +89,8 @@ class UpdateTechNestIndicatorsHandler(requests.RequestHandler[commands.UpdateTec
 
 
 class UpdatedDeviceIndicatorsHandler(requests.RequestHandler[commands.UpdateDeviceIndicators, None]):
+    """Обновляет данные индикаторов устройства"""
+
     def __init__(self, storage: storages.DeviceIndicatorValuesStorage):
         self.storage = storage
         self._events = []
@@ -91,6 +100,7 @@ class UpdatedDeviceIndicatorsHandler(requests.RequestHandler[commands.UpdateDevi
         return self._events
 
     async def handle(self, request: commands.UpdateDeviceIndicators) -> None:
+        # TODO добавить проверку существования узла и устройства
         await self.storage.set_value(request.device_id, request.body)
         self._events.append(
             events.DeviceIndicatorsUpdated(
@@ -99,3 +109,43 @@ class UpdatedDeviceIndicatorsHandler(requests.RequestHandler[commands.UpdateDevi
                 body=request.body,
             )
         )
+
+
+class PublishTargetIndicatorsHandler(requests.RequestHandler[commands.PublishTargetIndicators, None]):
+    """Публикует события с актуальными данными на индикаторах узла и устройств на нем"""
+
+    def __init__(
+        self,
+        uow: unit_of_work.UoW,
+        tech_nest_storage: storages.TechNestIndicatorValuesStorage,
+        device_storage: storages.DeviceIndicatorValuesStorage,
+    ):
+        self.uow = uow
+        self.nest_storage = tech_nest_storage
+        self.device_storage = device_storage
+        self._events = []
+
+    @property
+    def events(self) -> list[event.Event]:
+        return self._events
+
+    async def handle(self, request: commands.PublishTargetIndicators) -> None:
+        async with self.uow.transaction() as uow:
+            tech_nest_indicator_values = await self.nest_storage.get_value(request.nest)
+            self._events.append(
+                events.TechNestIndicatorsUpdated(
+                    tech_nest_id=request.nest,
+                    body=tech_nest_indicator_values,
+                )
+            )
+            devices = await uow.repository.get_devices(request.nest)
+            device_ids = [device.id for device in devices]
+            devices_indicator_values = await self.device_storage.get_values(*device_ids)
+            for device_id, indicator_values in zip(device_ids, devices_indicator_values):
+                self._events.append(
+                    events.DeviceIndicatorsUpdated(
+                        tech_nest_id=request.nest,
+                        device_id=device_id,
+                        body=indicator_values,
+                    )
+                )

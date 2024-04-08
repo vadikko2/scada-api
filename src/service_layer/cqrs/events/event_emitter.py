@@ -48,7 +48,7 @@ class EventEmitter:
 
         logging.logger.debug(
             "Sending Notification Event(%s) to message broker %s",
-            event.event_id,
+            event,
             type(self._message_broker).__name__,
         )
 

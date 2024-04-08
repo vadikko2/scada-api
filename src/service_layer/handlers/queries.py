@@ -41,6 +41,10 @@ class GetTechNestsHandler(requests.RequestHandler[queries.TechNests, responses.T
 
 
 class GetDevicesHandler(requests.RequestHandler[queries.Devices, responses.Devices]):
+    """
+    Обрабатывает запросы на получение данных об устройствах
+    """
+
     def __init__(self, uow: unit_of_work.UoW):
         self.uow = uow
 

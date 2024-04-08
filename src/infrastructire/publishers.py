@@ -16,9 +16,6 @@ C = typing.TypeVar("C")
 class EventPublisher(typing.Generic[C]):
     channel: C
 
-    def __init__(self, channel: C):
-        self.channel = channel
-
     async def publish(self, message: M) -> None:
         """Публикует события в канал. При необходимости делает необходимую обработку."""
 
@@ -26,6 +23,9 @@ class EventPublisher(typing.Generic[C]):
 class FromAmqpToWebsocketPublisher(EventPublisher[fastapi.WebSocket]):
     channel: fastapi.WebSocket
     heartbeat: asyncio.Task | None = None
+
+    def __init__(self, channel: fastapi.WebSocket):
+        self.channel = channel
 
     async def publish(self, message: abc.AbstractIncomingMessage) -> None:
         message_body = orjson.loads(message.body)
@@ -38,11 +38,22 @@ class FromAmqpToWebsocketPublisher(EventPublisher[fastapi.WebSocket]):
         await self.channel.send_json(payload)
 
 
-class AMQPPublisher:
-    def __init__(self, url: str, max_connection_pool_size=2, max_channel_pool_size=10):
+class AMQPPublisher(EventPublisher[abc.AbstractExchange]):
+    def __init__(
+        self,
+        url: str,
+        routing_key: str,
+        exchange_name: str,
+        max_connection_pool_size=2,
+        max_channel_pool_size=10,
+    ):
         self.url = url
         self.max_connection_pool_size = max_connection_pool_size
         self.max_channel_pool_size = max_channel_pool_size
+
+        self.routing_key = routing_key
+        self.exchange_name = exchange_name
+
         self.connection_pool: pool.Pool = pool.Pool(
             functools.partial(factories.amqp_connection_pool_factory, url=url),
             max_size=self.max_connection_pool_size,
@@ -52,7 +63,9 @@ class AMQPPublisher:
             max_size=self.max_channel_pool_size,
         )
 
-    async def publish(self, message: abc.AbstractMessage, routing_key: str, exchange_name: str) -> None:
+    async def publish(self, message: abc.AbstractMessage) -> None:
         async with self.channel_pool.acquire() as channel:
-            exchange: aio_pika.Exchange = await channel.declare_exchange(exchange_name, type="topic", auto_delete=False)
-            await exchange.publish(message=message, routing_key=routing_key)
+            exchange: aio_pika.Exchange = await channel.declare_exchange(
+                self.exchange_name, type="topic", auto_delete=False
+            )
+            await exchange.publish(message=message, routing_key=self.routing_key)

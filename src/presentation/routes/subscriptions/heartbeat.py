@@ -10,7 +10,7 @@ async def send_heartbeat(websocket: fastapi.WebSocket):
     while True:
         try:
             await websocket.send_json({"type": "heartbeat"})
-            await asyncio.sleep(10)
+            await asyncio.sleep(3)
         except websockets.WebSocketDisconnect:
             logging.logger.debug("Websocket disconnected")
             return

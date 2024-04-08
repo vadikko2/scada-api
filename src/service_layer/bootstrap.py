@@ -21,6 +21,7 @@ def init_commands(mapper: requests.RequestMap):
     mapper.bind(commands.UpdateDeviceIndicators, command_handlers.UpdatedDeviceIndicatorsHandler)
     mapper.bind(commands.AddTechNest, command_handlers.AddTechNestHandler)
     mapper.bind(commands.AddDevice, command_handlers.AddDeviceHandler)
+    mapper.bind(commands.PublishTargetIndicators, command_handlers.PublishTargetIndicatorsHandler)
 
 
 def init_events(mapper: events.EventMap):

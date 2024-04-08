@@ -18,6 +18,10 @@ class IndicatorValuesStorage(typing.Generic[V], abc.ABC):
     async def get_value(self, id: int) -> V | None:
         pass
 
+    @abc.abstractmethod
+    async def get_values(self, *id: int) -> list[V]:
+        pass
+
 
 class TechNestIndicatorValuesStorage(IndicatorValuesStorage[models.TechNestIndicatorsValues], abc.ABC):
     pass
@@ -44,6 +48,18 @@ class RedisTechNestIndicatorValuesStorage(TechNestIndicatorValuesStorage):
             return
         return models.TechNestIndicatorsValues.model_validate(orjson.loads(value), context={"assume_validated": True})
 
+    async def get_values(self, *id: int) -> list[V]:
+        keys = list(map(self.PREFIX.format, id))
+        values = await self.client.mget(keys)
+        return list(
+            map(
+                lambda v: models.TechNestIndicatorsValues.model_validate(
+                    orjson.loads(v), context={"assume_validated": True}
+                ),
+                values,
+            )
+        )
+
 
 class RedisDeviceIndicatorValuesStorage(TechNestIndicatorValuesStorage):
     PREFIX = "device@{}"
@@ -61,3 +77,15 @@ class RedisDeviceIndicatorValuesStorage(TechNestIndicatorValuesStorage):
         if not value:
             return
         return models.DeviceIndicatorsValues.model_validate(orjson.loads(value), context={"assume_validated": True})
+
+    async def get_values(self, *id: int) -> list[V]:
+        keys = list(map(self.PREFIX.format, id))
+        values = await self.client.mget(keys)
+        return list(
+            map(
+                lambda v: models.DeviceIndicatorsValues.model_validate(
+                    orjson.loads(v), context={"assume_validated": True}
+                ),
+                values,
+            )
+        )

@@ -4,7 +4,7 @@ import typing
 
 from aio_pika import abc, pool
 
-from infrastructire import factories
+from infrastructire import factories, logging
 
 M = typing.TypeVar("M")
 
@@ -49,4 +49,5 @@ class AMQPConsumer(EventConsumer):
             await queue.bind(exchange, self.routing_key)
             async with queue.iterator() as queue_iter:
                 async for message in queue_iter:
+                    logging.logger.debug(f"Got message {message} from queue {self.queue_name}")
                     await on_message(message)
