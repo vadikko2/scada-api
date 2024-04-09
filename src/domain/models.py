@@ -13,6 +13,11 @@ class ModeEnum(enum.Enum):
     ACCIDENT = "accident"
 
 
+class DeviceStatus(enum.Enum):
+    TURNED_ON = "turned_on"
+    TURNED_OFF = "turned_off"
+
+
 class TechNest(pydantic.BaseModel):
     """Технический узел"""
 
@@ -80,7 +85,11 @@ class TechNestIndicators(pydantic.BaseModel):
 
 
 class AmmeterValue(IndicatorValue[decimal.Decimal]):
-    unit: str = "Ампер"
+    unit: str = "A"
+
+
+class Frequency(IndicatorValue[decimal.Decimal]):
+    unit: str = "HZ"
 
 
 class DeviceIndicatorsValues(pydantic.BaseModel):
@@ -88,6 +97,8 @@ class DeviceIndicatorsValues(pydantic.BaseModel):
 
     ammeter: AmmeterValue = pydantic.Field(description="Значение силы тока")
     mode: ModeEnum = pydantic.Field(description="Режим работы", default=ModeEnum.MANUAL)
+    frequency: Frequency = pydantic.Field(description="Частота работы")
+    status: DeviceStatus = pydantic.Field(description="Статус устройства")
 
 
 class DeviceIndicators(pydantic.BaseModel):
