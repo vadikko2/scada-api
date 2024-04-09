@@ -48,7 +48,4 @@ testpaths = [
 ]
 
 [tool.setuptools.packages.find]
-include = [
-  "crud"
-]
 where = ["src"]

@@ -33,12 +33,11 @@ class Redis(pydantic_settings.BaseSettings, case_sensitive=True):
     HOSTNAME: str
     PORT: int
     DATABASE: int
-    USER: str
     PASSWORD: str
 
     @property
     def dsn(self) -> pydantic.RedisDsn:
-        return pydantic.RedisDsn(f"redis://{self.HOSTNAME}:{self.PORT}/")
+        return pydantic.RedisDsn(f"redis://:{self.PASSWORD}@{self.HOSTNAME}:{self.PORT}/")
 
     model_config = pydantic_settings.SettingsConfigDict(env_prefix="REDIS_")
 

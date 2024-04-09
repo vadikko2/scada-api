@@ -24,9 +24,6 @@ class FromAmqpToWebsocketPublisher(EventPublisher[fastapi.WebSocket]):
     channel: fastapi.WebSocket
     heartbeat: asyncio.Task | None = None
 
-    def __init__(self, channel: fastapi.WebSocket):
-        self.channel = channel
-
     async def publish(self, message: abc.AbstractIncomingMessage) -> None:
         message_body = orjson.loads(message.body)
 

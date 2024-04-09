@@ -7,7 +7,7 @@ WORKDIR /code
 COPY . /code
 
 RUN apt-get update && \
-    apt-get --no-install-recommends -y install gcc && \
+    apt-get --no-install-recommends -y install gcc python3-dev && \
     pip install -e .
 
 CMD ["uvicorn", "main:app", "--workers", "4", "--host", "0.0.0.0", "--port", "80"]
