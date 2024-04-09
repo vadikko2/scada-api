@@ -42,7 +42,7 @@ class SQLAlchemyRepositoryFactory(RepositoryFactory):
 
 
 async def amqp_connection_pool_factory(url: str) -> abc.AbstractRobustConnection:
-    return await aio_pika.connect_robust(url=url)
+    return await aio_pika.connect_robust(url=url, virtualhost="scada")
 
 
 async def amqp_channel_pool_factory(connection_pool: pool.Pool) -> aio_pika.Channel:
