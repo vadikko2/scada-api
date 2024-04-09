@@ -23,8 +23,8 @@ MiddlewareAlias: typing.TypeAlias = typing.Callable[
 
 def custom_openapi(app: fastapi.FastAPI):
     openapi_schema = get_openapi(
-        title="Custom title",
-        version="2.5.0",
+        title=app.title,
+        version=app.version,
         description="This is a very custom OpenAPI schema",
         routes=app.routes,
     )
