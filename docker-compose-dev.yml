@@ -7,7 +7,7 @@ services:
       PORT: 80
     ports:
     - 80:80
-    restart: no
+    restart: always
 
   rabbitmq_dev:
     image: rabbitmq:3.12.13-management

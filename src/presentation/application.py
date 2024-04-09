@@ -3,6 +3,8 @@ import functools
 import typing
 
 import fastapi
+from fastapi import routing
+from fastapi.openapi.utils import get_openapi
 from starlette.middleware.base import RequestResponseEndpoint
 
 __all__ = ("create",)
@@ -17,6 +19,31 @@ MiddlewareAlias: typing.TypeAlias = typing.Callable[
     ],
     typing.Awaitable[fastapi.Response],
 ]
+
+
+def custom_openapi(app: fastapi.FastAPI):
+    openapi_schema = get_openapi(
+        title="Custom title",
+        version="2.5.0",
+        description="This is a very custom OpenAPI schema",
+        routes=app.routes,
+    )
+
+    # Add WebSocket route to the schema
+    for route in app.routes:
+        if not isinstance(route, routing.APIWebSocketRoute):
+            continue
+        openapi_schema["paths"][route.path] = {
+            "get": {
+                "summary": route.name,
+                "responses": {200: {"description": "WebSocket"}},
+                "tags": [
+                    "Subscriptions",
+                ],
+            }
+        }
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
 
 
 def create(
@@ -63,5 +90,8 @@ def create(
     if shutdown_tasks:
         for task in shutdown_tasks:
             app.on_event("shutdown")(task)
+
+    # Формируем документацию
+    custom_openapi(app=app)
 
     return app
