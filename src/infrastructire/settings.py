@@ -47,13 +47,14 @@ class Amqp(pydantic_settings.BaseSettings, case_sensitive=True):
     HOSTNAME: str
     USER: str
     PASSWORD: str
+    VHOST: str
     EVENTS_EXCHANGE: str = pydantic.Field(description="scada_events")
     EVENTS_ROUTEING_KEY: str = pydantic.Field(description="scada_events")
     EVENTS_QUEUE: str = pydantic.Field(description="scada_events")
 
     @property
     def dsn(self) -> pydantic.AmqpDsn:
-        return pydantic.AmqpDsn(f"amqp://{self.USER}:{self.PASSWORD}@{self.HOSTNAME}")
+        return pydantic.AmqpDsn(f"amqp://{self.USER}:{self.PASSWORD}@{self.HOSTNAME}/{self.VHOST}")
 
     model_config = pydantic_settings.SettingsConfigDict(env_prefix="AMQP_")
 
