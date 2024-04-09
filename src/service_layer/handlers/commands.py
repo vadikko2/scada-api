@@ -79,11 +79,13 @@ class UpdateTechNestIndicatorsHandler(requests.RequestHandler[commands.UpdateTec
 
     async def handle(self, request: commands.UpdateTechNestIndicators) -> None:
         # TODO добавить проверку существования узла
-        await self.storage.set_value(request.tech_nest_id, request.body)
+        await self.storage.set_value(request.tech_nest_id, request.values)
         self._events.append(
             events.TechNestIndicatorsUpdated(
-                tech_nest_id=request.tech_nest_id,
-                body=request.body,
+                payload=models.TechNestIndicators(
+                    tech_nest_id=request.tech_nest_id,
+                    values=request.values,
+                )
             )
         )
 
@@ -101,12 +103,14 @@ class UpdatedDeviceIndicatorsHandler(requests.RequestHandler[commands.UpdateDevi
 
     async def handle(self, request: commands.UpdateDeviceIndicators) -> None:
         # TODO добавить проверку существования узла и устройства
-        await self.storage.set_value(request.device_id, request.body)
+        await self.storage.set_value(request.device_id, request.values)
         self._events.append(
             events.DeviceIndicatorsUpdated(
-                tech_nest_id=request.tech_nest_id,
-                device_id=request.device_id,
-                body=request.body,
+                payload=models.DeviceIndicators(
+                    tech_nest_id=request.tech_nest_id,
+                    device_id=request.device_id,
+                    values=request.values,
+                )
             )
         )
 
@@ -134,8 +138,10 @@ class PublishTargetIndicatorsHandler(requests.RequestHandler[commands.PublishTar
             tech_nest_indicator_values = await self.nest_storage.get_value(request.nest)
             self._events.append(
                 events.TechNestIndicatorsUpdated(
-                    tech_nest_id=request.nest,
-                    body=tech_nest_indicator_values,
+                    payload=models.TechNestIndicators(
+                        tech_nest_id=request.nest,
+                        values=tech_nest_indicator_values,
+                    )
                 )
             )
             devices = await uow.repository.get_devices(request.nest)
@@ -144,8 +150,10 @@ class PublishTargetIndicatorsHandler(requests.RequestHandler[commands.PublishTar
             for device_id, indicator_values in zip(device_ids, devices_indicator_values):
                 self._events.append(
                     events.DeviceIndicatorsUpdated(
-                        tech_nest_id=request.nest,
-                        device_id=device_id,
-                        body=indicator_values,
+                        payload=models.DeviceIndicators(
+                            tech_nest_id=request.nest,
+                            device_id=device_id,
+                            values=indicator_values,
+                        )
                     )
                 )

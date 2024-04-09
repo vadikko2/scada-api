@@ -76,7 +76,7 @@ class TechNestIndicators(pydantic.BaseModel):
     """Показатели на узле"""
 
     tech_nest_id: int | None = pydantic.Field(description="Идентификатор технического узла")
-    body: TechNestIndicatorsValues = pydantic.Field(description="Значения на индикаторах")
+    values: TechNestIndicatorsValues = pydantic.Field(description="Значения на индикаторах")
 
 
 class AmmeterValue(IndicatorValue[decimal.Decimal]):
@@ -95,4 +95,4 @@ class DeviceIndicators(pydantic.BaseModel):
 
     tech_nest_id: int | None = pydantic.Field(description="Идентификатор технического узла")
     device_id: int | None = pydantic.Field(description="Идентификатор устройства")
-    body: DeviceIndicatorsValues = pydantic.Field(description="Значения на индикаторах")
+    values: DeviceIndicatorsValues = pydantic.Field(description="Значения на индикаторах")

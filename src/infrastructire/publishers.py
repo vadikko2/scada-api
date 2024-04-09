@@ -32,7 +32,7 @@ class FromAmqpToWebsocketPublisher(EventPublisher[fastapi.WebSocket]):
         payload = message_body.get("payload")
         if not payload:
             return
-        await self.channel.send_json(payload)
+        await self.channel.send_json(payload.get("payload"))
 
 
 class AMQPPublisher(EventPublisher[abc.AbstractExchange]):
