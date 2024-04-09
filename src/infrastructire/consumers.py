@@ -45,9 +45,10 @@ class AMQPConsumer(EventConsumer):
         async with self.channel_pool.acquire() as channel:
             await channel.set_qos(prefetch_count=1)
             exchange = await channel.declare_exchange(self.exchange_name, type="topic")
-            queue = await channel.declare_queue(self.queue_name, auto_delete=False)
+            queue = await channel.declare_queue(self.queue_name, auto_delete=True)
             await queue.bind(exchange, self.routing_key)
             async with queue.iterator() as queue_iter:
                 async for message in queue_iter:
                     logging.logger.debug(f"Got message {message} from queue {self.queue_name}")
                     await on_message(message)
+                    await message.ack()

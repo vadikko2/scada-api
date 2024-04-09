@@ -34,7 +34,8 @@ async def subscribe_tech_nests(
     mediator: cqrs.Mediator = fastapi.Depends(dependencies.inject_mediator),
 ):
     logging.logger.debug("Open websocket")
-    publisher = publisher_type(websocket)
+    publisher = publisher_type()
+    publisher.channel = websocket
 
     try:
         await websocket.accept()
