@@ -36,7 +36,11 @@ def custom_openapi(app: fastapi.FastAPI):
         openapi_schema["paths"][route.path] = {
             "get": {
                 "summary": route.name,
-                "responses": {200: {"description": "WebSocket"}},
+                "responses": {
+                    200: {
+                        "description": "WebSocket",
+                    }
+                },
                 "tags": [
                     "Subscriptions",
                 ],

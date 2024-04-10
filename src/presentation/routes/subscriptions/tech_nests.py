@@ -4,6 +4,7 @@ import typing
 import fastapi
 import websockets.exceptions as ws_exc
 
+from domain import models
 from infrastructire import consumers, logging, publishers
 from presentation import dependencies
 from presentation.models import paths
@@ -32,7 +33,7 @@ async def subscribe_tech_nests(
         dependencies.get_publisher_type,
     ),
     mediator: cqrs.Mediator = fastapi.Depends(dependencies.inject_mediator),
-):
+) -> models.TechNestIndicators | models.DeviceIndicators:
     logging.logger.debug("Open websocket")
     publisher = publisher_type()
     publisher.channel = websocket

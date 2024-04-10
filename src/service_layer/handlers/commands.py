@@ -43,6 +43,7 @@ class AddTechNestHandler(requests.RequestHandler[commands.AddTechNest, responses
             )
             new_nest = models.TechNest(
                 holder_id=request.holder,
+                name=request.name,
                 location=new_location,
             )
             new_nest_id = await uow.repository.add_nest(new_nest)

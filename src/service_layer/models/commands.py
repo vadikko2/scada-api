@@ -34,6 +34,7 @@ class CreateHolder(Command):
 
 class AddTechNest(Command):
     holder: int = validation.IdField(description="Владелец технического узла")
+    name: str = models.TechNestNameField()
     latitude: decimal.Decimal = models.LatitudeField()
     longitude: decimal.Decimal = models.LongitudeField()
     address: str = models.AddressField()
