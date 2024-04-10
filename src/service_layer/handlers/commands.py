@@ -18,7 +18,7 @@ class CreateHolderHandler(requests.RequestHandler[commands.CreateHolder, respons
 
     async def handle(self, request: commands.CreateHolder) -> responses.HolderCreated:
         async with self.uow.transaction() as uow:
-            new_holder = models.Company(name=request.name, inn=request.inn, kpp=request.kpp)
+            new_holder = models.Holder(name=request.name, inn=request.inn, kpp=request.kpp)
             new_holder_id = await uow.repository.add_holder(new_holder)
             await uow.commit()
             return responses.HolderCreated(id=new_holder_id)

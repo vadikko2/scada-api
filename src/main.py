@@ -1,6 +1,6 @@
 import fastapi
 
-from infrastructire import orm, settings
+from infrastructire import settings
 from presentation import application
 from presentation.routes.commands import holders as holder_commands
 from presentation.routes.commands import indicators as indicators_events
@@ -21,7 +21,7 @@ app: fastapi.FastAPI = application.create(
     ),
     subscription_routers=(tech_nests_sub.router,),
     middlewares=[],
-    startup_tasks=[orm.start_mappers],
+    startup_tasks=[],
     shutdown_tasks=[],
     global_dependencies=[],
     title=settings.app_name,

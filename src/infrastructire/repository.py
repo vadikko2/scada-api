@@ -10,7 +10,7 @@ from infrastructire import orm
 
 N = typing.TypeVar("N", bound=models.TechNest, contravariant=True)
 L = typing.TypeVar("L", bound=models.TechNestLocation, contravariant=True)
-H = typing.TypeVar("H", bound=models.Company, contravariant=True)
+H = typing.TypeVar("H", bound=models.Holder, contravariant=True)
 D = typing.TypeVar("D", bound=models.Device, contravariant=True)
 
 
@@ -73,7 +73,7 @@ class SQLAlchemyRepository(Repository):
 
     async def get_holder(self, holder: int) -> H:
         result = await self.session.execute(sqlalchemy.select(orm.Company).filter_by(id=holder))
-        return models.Company.model_validate(result.scalar())
+        return models.Holder.model_validate(result.scalar())
 
     async def get_nests_by_holder(self, holder: int) -> list[N]:
         nests_result = await self.session.execute(

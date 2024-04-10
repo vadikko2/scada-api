@@ -25,7 +25,7 @@ def custom_openapi(app: fastapi.FastAPI):
     openapi_schema = get_openapi(
         title=app.title,
         version=app.version,
-        description="This is a very custom OpenAPI schema",
+        description="Scada API specification",
         routes=app.routes,
     )
 

@@ -4,14 +4,15 @@ import sqlalchemy
 from sqlalchemy import orm
 from sqlalchemy.orm import registry
 
-from infrastructire import logging
-
 mapper_registry = registry()
 Base = mapper_registry.generate_base()
 
 
 class Company(Base):
     __tablename__ = "companies"
+    __table_args__ = (
+        sqlalchemy.UniqueConstraint("inn", "kpp", name="inn_kpp_unique_index", comment="Уникальный индекс ИНН КПП"),
+    )
     id = sqlalchemy.Column(
         sqlalchemy.Integer,
         primary_key=True,
@@ -24,14 +25,15 @@ class Company(Base):
         comment="Название компании",
     )
     inn = sqlalchemy.Column(
-        sqlalchemy.Integer,
+        sqlalchemy.String(12),
         nullable=False,
         comment="ИНН компании",
     )
     kpp = sqlalchemy.Column(
-        sqlalchemy.Integer,
-        nullable=False,
+        sqlalchemy.String(9),
+        nullable=True,
         comment="КПП компании",
+        default=None,
     )
     nests = orm.relationship("TechNest", back_populates="holder")
 
@@ -62,6 +64,14 @@ class Locations(Base):
 
 class Devices(Base):
     __tablename__ = "devices"
+    __table_args__ = (
+        sqlalchemy.UniqueConstraint(
+            "nest_id",
+            "name",
+            name="inn_kpp_unique_index",
+            comment="Уникальный индекс Идентификатор узла + название устройства",
+        ),
+    )
     id = sqlalchemy.Column(
         sqlalchemy.Integer,
         primary_key=True,
@@ -94,6 +104,11 @@ class TechNest(Base):
         comment="Идентификатор технического гнезда",
         index=True,
     )
+    name = sqlalchemy.Column(
+        sqlalchemy.String(255),
+        nullable=False,
+        comment="Название технического узла",
+    )
     location_id = sqlalchemy.Column(
         sqlalchemy.Integer,
         sqlalchemy.ForeignKey("locations.id"),
@@ -105,35 +120,3 @@ class TechNest(Base):
     location = orm.relationship("Locations", back_populates="nest")
     devices = orm.relationship("Devices", back_populates="nest")
     holder = orm.relationship("Company", back_populates="nests")
-
-
-async def start_mappers():
-    logging.logger.info("Starting mappers")
-    # device_mapper = mapper_registry.map_imperatively(models.Device, device)
-    # location_mapper = mapper_registry.map_imperatively(models.TechNestLocation, location)
-    # tech_nest_mapper = mapper_registry.map_imperatively(
-    #     models.TechNest,
-    #     tech_nest,
-    #     properties={
-    #         "devices": orm.relationship(
-    #             device_mapper,
-    #             secondary=device,
-    #             collection_class=list,
-    #         ),
-    #         "location": orm.relationship(
-    #             location_mapper,
-    #             secondary=location,
-    #         ),
-    #     },
-    # )
-    # mapper_registry.map_imperatively(
-    #     models.Company,
-    #     company,
-    #     properties={
-    #         "tech_nests": orm.relationship(
-    #             tech_nest_mapper,
-    #             secondary=tech_nest,
-    #             collection_class=list,
-    #         )
-    #     },
-    # )
