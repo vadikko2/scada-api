@@ -77,6 +77,7 @@ def create(
     startup_tasks: typing.Iterable[typing.Callable[[], typing.Coroutine]] | None = None,
     shutdown_tasks: typing.Iterable[typing.Callable[[], typing.Coroutine]] | None = None,
     global_dependencies: typing.Iterable[typing.Callable[[], typing.Awaitable[typing.Any]]] | None = None,
+    set_cors: bool = False,
     **kwargs,
 ) -> fastapi.FastAPI:
     if global_dependencies is None:
@@ -101,6 +102,10 @@ def create(
         app.add_middleware(middleware)
 
     app.middleware("http")(logging_middleware.LoggingMiddleware())
+    app.middleware("https")(logging_middleware.LoggingMiddleware())
+
+    if set_cors:
+        settings_cors(app)
 
     # Инициализирует все startup таски
     if startup_tasks:

@@ -1,4 +1,3 @@
-from domain import models
 from infrastructire import storages
 from infrastructire import uow as unit_of_work
 from service_layer.cqrs import requests
@@ -60,7 +59,7 @@ class GetDevicesHandler(requests.RequestHandler[queries.Devices, responses.Devic
             return responses.Devices(nest=request.nest, devices=devices)
 
 
-class GetTargetNestIndicatorsHandler(requests.RequestHandler[queries.TechNestIndicators, None]):
+class GetTargetNestIndicatorsHandler(requests.RequestHandler[queries.TechNestIndicators, responses.TechNestIndicators]):
     """Возвращает актуальные данные на индикаторах узла"""
 
     def __init__(
@@ -76,9 +75,5 @@ class GetTargetNestIndicatorsHandler(requests.RequestHandler[queries.TechNestInd
     def events(self) -> list[event.Event]:
         return self._events
 
-    async def handle(self, request: queries.TechNestIndicators) -> None:
-        tech_nest_indicator_values = await self.nest_storage.get_value(request.nest)
-        models.TechNestIndicators(
-            nest=request.nest,
-            values=tech_nest_indicator_values,
-        )
+    async def handle(self, request: queries.TechNestIndicators) -> responses.TechNestIndicators:
+        tech_nest_indicator_values = await self.nest_storage.get_value(request.nest)  # noqa

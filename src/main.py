@@ -23,4 +23,5 @@ app: fastapi.FastAPI = application.create(
     global_dependencies=[],
     title=settings.app_name,
     version=settings.version,
+    set_cors=True,
 )
