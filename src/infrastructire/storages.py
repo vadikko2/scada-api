@@ -51,12 +51,13 @@ class RedisTechNestIndicatorValuesStorage(TechNestIndicatorValuesStorage):
     async def get_values(self, *id: int) -> list[V]:
         keys = list(map(self.PREFIX.format, id))
         values = await self.client.mget(keys)
+        filtered_values = filter(lambda item: item is not None, values)
         return list(
             map(
                 lambda v: models.TechNestIndicatorsValues.model_validate(
                     orjson.loads(v), context={"assume_validated": True}
                 ),
-                values,
+                filtered_values,
             )
         )
 
@@ -81,11 +82,12 @@ class RedisDeviceIndicatorValuesStorage(TechNestIndicatorValuesStorage):
     async def get_values(self, *id: int) -> list[V]:
         keys = list(map(self.PREFIX.format, id))
         values = await self.client.mget(keys)
+        filtered_values = filter(lambda item: item is not None, values)
         return list(
             map(
                 lambda v: models.DeviceIndicatorsValues.model_validate(
                     orjson.loads(v), context={"assume_validated": True}
                 ),
-                values,
+                filtered_values,
             )
         )
