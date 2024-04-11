@@ -52,18 +52,9 @@ def custom_openapi(app: fastapi.FastAPI):
 
 
 def settings_cors(app: fastapi.FastAPI):
-    origins = [
-        "http://scada-api.ru",
-        "https://scada-api.ru",
-        "http://localhost",
-        "http://localhost:80",
-        "http://0.0.0.0",
-        "http://0.0.0.0:80",
-    ]
-
     app.add_middleware(
         cors.CORSMiddleware,
-        allow_origins=origins,
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
