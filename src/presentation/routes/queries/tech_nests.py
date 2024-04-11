@@ -21,5 +21,5 @@ async def get_devices(
     mediator: cqrs.Mediator = fastapi.Depends(dependencies.inject_mediator),
 ) -> pres_responses.Response[responses.Devices]:
     """Возвращает коллекцию устройств на техническом узле"""
-    result = await mediator.send(queries.Devices(tech_nest=nest))
+    result = await mediator.send(queries.Devices(nest=nest))
     return pres_responses.Response(result=result)

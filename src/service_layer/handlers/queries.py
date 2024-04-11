@@ -1,3 +1,5 @@
+from domain import models
+from infrastructire import storages
 from infrastructire import uow as unit_of_work
 from service_layer.cqrs import requests
 from service_layer.cqrs.events import event
@@ -54,5 +56,29 @@ class GetDevicesHandler(requests.RequestHandler[queries.Devices, responses.Devic
 
     async def handle(self, request: queries.Devices) -> responses.Devices:
         async with self.uow.transaction() as uow:
-            devices = await uow.repository.get_devices(request.tech_nest)
-            return responses.Devices(tech_nest=request.tech_nest, devices=devices)
+            devices = await uow.repository.get_devices(request.nest)
+            return responses.Devices(nest=request.nest, devices=devices)
+
+
+class GetTargetNestIndicatorsHandler(requests.RequestHandler[queries.TechNestIndicators, None]):
+    """Возвращает актуальные данные на индикаторах узла"""
+
+    def __init__(
+        self,
+        uow: unit_of_work.UoW,
+        tech_nest_storage: storages.TechNestIndicatorValuesStorage,
+    ):
+        self.uow = uow
+        self.nest_storage = tech_nest_storage
+        self._events = []
+
+    @property
+    def events(self) -> list[event.Event]:
+        return self._events
+
+    async def handle(self, request: queries.TechNestIndicators) -> None:
+        tech_nest_indicator_values = await self.nest_storage.get_value(request.nest)
+        models.TechNestIndicators(
+            nest=request.nest,
+            values=tech_nest_indicator_values,
+        )

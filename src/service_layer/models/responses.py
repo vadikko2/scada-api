@@ -17,7 +17,7 @@ class TechNests(response.Response):
 class Devices(response.Response):
     """Коллекция устройств технического узла"""
 
-    tech_nest: int = validation.IdField(description="Идентификатор технического узла")
+    nest: int = validation.IdField(description="Идентификатор технического узла")
     devices: list[models.Device] = models.DevicesListField()
 
 
@@ -31,3 +31,7 @@ class TechNestAdded(response.Response):
 
 class DeviceAdded(response.Response):
     id: int = validation.IdField(description="Идентификатор устройства")
+
+
+class TechNestIndicators(response.Response, models.TechNestIndicatorsValues):
+    pass

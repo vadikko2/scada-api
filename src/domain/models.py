@@ -178,7 +178,7 @@ class TechNestIndicatorsValues(pydantic.BaseModel):
 class TechNestIndicators(pydantic.BaseModel):
     """Показатели на узле"""
 
-    tech_nest_id: int | None = pydantic.Field(description="Идентификатор технического узла")
+    nest: int | None = pydantic.Field(description="Идентификатор технического узла")
     values: TechNestIndicatorsValues = pydantic.Field(description="Значения на индикаторах")
     # TODO добавить временную метку получения показателя
 
@@ -207,7 +207,7 @@ class DeviceIndicatorsValues(pydantic.BaseModel):
 class DeviceIndicators(pydantic.BaseModel):
     """Показатели на устройстве"""
 
-    tech_nest_id: int | None = pydantic.Field(description="Идентификатор технического узла")
-    device_id: int | None = pydantic.Field(description="Идентификатор устройства")
+    nest: int | None = pydantic.Field(description="Идентификатор технического узла")
+    device: int | None = pydantic.Field(description="Идентификатор устройства")
     values: DeviceIndicatorsValues = pydantic.Field(description="Значения на индикаторах")
     # TODO добавить временную метку получения показателя

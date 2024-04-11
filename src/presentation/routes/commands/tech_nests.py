@@ -16,18 +16,6 @@ router = fastapi.APIRouter(
 )
 
 
-@router.put("", status_code=status.HTTP_201_CREATED)
-async def add_holder(
-    command: requests.CommandRequest[commands.AddTechNest],
-    mediator: cqrs.Mediator = fastapi.Depends(dependencies.inject_mediator),
-) -> pres_responses.Response[service_responses.TechNestAdded]:
-    """
-    Добавляет новый технический узел владельцу
-    """
-    result = await mediator.send(command.body)
-    return pres_responses.Response(result=result)
-
-
 @router.put("/{nest}/device", status_code=status.HTTP_201_CREATED)
 async def add_device(
     nest: typing.Annotated[int, paths.IdPath()],

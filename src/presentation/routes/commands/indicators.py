@@ -22,7 +22,7 @@ async def publish_tech_nest_indicators(
     mediator: cqrs.Mediator = fastapi.Depends(dependencies.inject_mediator),
 ):
     """Публикует значения на индикаторах технического узла"""
-    await mediator.send(commands.UpdateTechNestIndicators(tech_nest_id=nest, values=command.body))
+    await mediator.send(commands.UpdateTechNestIndicators(nest=nest, values=command.body))
 
 
 @router.put("/nest/{nest}/device/{device}", status_code=status.HTTP_204_NO_CONTENT)
@@ -33,4 +33,4 @@ async def publish_device_indicators(
     mediator: cqrs.Mediator = fastapi.Depends(dependencies.inject_mediator),
 ) -> None:
     """Публикует значения на индикаторах устройства"""
-    await mediator.send(commands.UpdateDeviceIndicators(tech_nest_id=nest, device_id=device, values=command.body))
+    await mediator.send(commands.UpdateDeviceIndicators(nest=nest, device=device, values=command.body))

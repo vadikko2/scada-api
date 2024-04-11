@@ -40,7 +40,7 @@ class Repository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def get_devices(self, tech_nest: int) -> list[D]:
+    async def get_devices(self, nest: int) -> list[D]:
         pass
 
 
@@ -85,7 +85,7 @@ class SQLAlchemyRepository(Repository):
     async def get_nests_by_location(self, location: int) -> list[N]:
         pass
 
-    async def get_devices(self, tech_nest: int) -> list[D]:
-        devices = await self.session.execute(sqlalchemy.select(orm.Devices).filter_by(nest_id=tech_nest))
+    async def get_devices(self, nest: int) -> list[D]:
+        devices = await self.session.execute(sqlalchemy.select(orm.Devices).filter_by(nest_id=nest))
         devices = devices.scalars().all()
         return list(map(models.Device.model_validate, devices))

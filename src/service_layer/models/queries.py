@@ -1,3 +1,5 @@
+import pydantic
+
 from service_layer.cqrs import requests
 from service_layer.models import validation
 
@@ -21,4 +23,16 @@ class TechNests(Query):
 class Devices(Query):
     """Запрос устройств по техническому узлу"""
 
-    tech_nest: int = validation.IdField(description="Идентификатор технического узла")
+    nest: int = validation.IdField(description="Идентификатор технического узла")
+
+
+class TechNestIndicators(Query):
+    """Запрос на получение актуальных показателей технического узла"""
+
+    nest: int = validation.IdField(description="Идентификатор технического узла")
+
+
+class DevicesIndicators(Query):
+    """Запрос на получение актуальных показателей технического узла"""
+
+    devices: list[int] = pydantic.Field(description="Идентификатор технического узла", default_factory=list)

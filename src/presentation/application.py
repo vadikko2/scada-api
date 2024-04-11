@@ -4,6 +4,7 @@ import typing
 
 import fastapi
 from fastapi import routing
+from fastapi.middleware import cors
 from fastapi.openapi.utils import get_openapi
 from starlette.middleware.base import RequestResponseEndpoint
 
@@ -48,6 +49,23 @@ def custom_openapi(app: fastapi.FastAPI):
         }
     app.openapi_schema = openapi_schema
     return app.openapi_schema
+
+
+def settings_cors(app: fastapi.FastAPI):
+    origins = [
+        "http://scada-api.ru",
+        "https://scada-api.ru",
+        "http://localhost",
+        "http://localhost:80",
+    ]
+
+    app.add_middleware(
+        cors.CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 
 def create(
