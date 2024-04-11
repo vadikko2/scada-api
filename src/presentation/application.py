@@ -57,6 +57,8 @@ def settings_cors(app: fastapi.FastAPI):
         "https://scada-api.ru",
         "http://localhost",
         "http://localhost:80",
+        "http://0.0.0.0",
+        "http://0.0.0.0:80",
     ]
 
     app.add_middleware(
