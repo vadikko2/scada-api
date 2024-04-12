@@ -1,3 +1,5 @@
+import pydantic
+
 from domain import models
 from service_layer.cqrs import response
 from service_layer.models import validation
@@ -33,5 +35,12 @@ class DeviceAdded(response.Response):
     id: int = validation.IdField(description="Идентификатор устройства")
 
 
-class TechNestIndicators(response.Response, models.TechNestIndicatorsValues):
+class TechNestIndicators(response.Response, models.TechNestIndicators):
     pass
+
+
+class DeviceIndicators(response.Response):
+    devices: list[models.DeviceIndicators] = pydantic.Field(
+        description="Значения на индикаторах устройств",
+        default_factory=list,
+    )

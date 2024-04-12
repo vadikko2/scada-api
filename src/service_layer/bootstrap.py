@@ -32,6 +32,8 @@ def init_queries(mapper: requests.RequestMap):
     mapper.bind(queries.Holder, query_handlers.GetHolderHandler)
     mapper.bind(queries.TechNests, query_handlers.GetTechNestsHandler)
     mapper.bind(queries.Devices, query_handlers.GetDevicesHandler)
+    mapper.bind(queries.TechNestIndicators, query_handlers.GetTargetNestIndicatorsHandler)
+    mapper.bind(queries.DevicesIndicators, query_handlers.GetDevicesIndicatorsHandler)
 
 
 def setup_mediator(

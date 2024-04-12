@@ -1,3 +1,4 @@
+from domain import models
 from infrastructire import storages
 from infrastructire import uow as unit_of_work
 from service_layer.cqrs import requests
@@ -64,10 +65,8 @@ class GetTargetNestIndicatorsHandler(requests.RequestHandler[queries.TechNestInd
 
     def __init__(
         self,
-        uow: unit_of_work.UoW,
         tech_nest_storage: storages.TechNestIndicatorValuesStorage,
     ):
-        self.uow = uow
         self.nest_storage = tech_nest_storage
         self._events = []
 
@@ -76,4 +75,33 @@ class GetTargetNestIndicatorsHandler(requests.RequestHandler[queries.TechNestInd
         return self._events
 
     async def handle(self, request: queries.TechNestIndicators) -> responses.TechNestIndicators:
-        tech_nest_indicator_values = await self.nest_storage.get_value(request.nest)  # noqa
+        tech_nest_indicator_values = await self.nest_storage.get_value(request.nest)
+        return responses.TechNestIndicators(nest=request.nest, values=tech_nest_indicator_values)
+
+
+class GetDevicesIndicatorsHandler(requests.RequestHandler[queries.DevicesIndicators, responses.DeviceIndicators]):
+    """Возвращает актуальные данные на индикаторах устройств узла"""
+
+    def __init__(
+        self,
+        uow: unit_of_work.UoW,
+        device_storage: storages.DeviceIndicatorValuesStorage,
+    ):
+        self.uow = uow
+        self.device_storage = device_storage
+        self._events = []
+
+    @property
+    def events(self) -> list[event.Event]:
+        return self._events
+
+    async def handle(self, request: queries.DevicesIndicators) -> responses.DeviceIndicators:
+        indicators: list[models.DeviceIndicators] = []
+        async with self.uow.transaction() as uow:
+            devices: list[models.Device] = await uow.repository.get_devices(nest=request.nest)
+            devices_ids = [device.id for device in devices]
+
+        values = await self.device_storage.get_values(*devices_ids)
+        for device_id, value in zip(devices_ids, values):
+            indicators.append(models.DeviceIndicators(nest=request.nest, device=device_id, values=value))
+        return responses.DeviceIndicators(devices=indicators)
