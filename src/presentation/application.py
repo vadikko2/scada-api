@@ -11,6 +11,7 @@ from fastapi.openapi.utils import get_openapi
 from starlette.middleware.base import RequestResponseEndpoint
 
 from domain import exceptions
+from presentation import admin
 from presentation.errors import handlers as error_handlers
 from presentation.errors import registry
 from presentation.middlewares import logging_middleware
@@ -129,5 +130,8 @@ def create(
 
     # Формируем документацию
     custom_openapi(app=app)
+
+    # Настраиваем авторизацию
+    admin.site.mount_app(app)
 
     return app

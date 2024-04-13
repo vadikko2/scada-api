@@ -11,6 +11,7 @@ dependencies = [
   "cryptography==42.0.2",
   "aio-pika==9.3.0",
   "fastapi==0.110.0",
+  "fastapi_user_auth==0.7.3",
   "uvicorn[standart]==0.28.0",
   "di[anyio]==0.79.2",
   "retry-async==0.1.4",
@@ -22,9 +23,9 @@ dependencies = [
   "petrovna==1.0.2",
   "decohints==1.0.9"
 ]
-name = "scada_api"
+name = "scada-api"
 requires-python = ">= 3.10"
-version = "0.0.2"
+version = "0.0.3"
 
 [project.optional-dependencies]
 git = [
