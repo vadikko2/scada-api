@@ -3,7 +3,9 @@ import typing
 import fastapi
 from starlette import status
 
+from domain import exceptions
 from presentation import dependencies
+from presentation.errors import registry
 from presentation.models import paths
 from presentation.models import responses as pres_responses
 from service_layer import cqrs
@@ -16,7 +18,13 @@ router = fastapi.APIRouter(
 )
 
 
-@router.get("/{holder}/nests", status_code=status.HTTP_200_OK)
+@router.get(
+    "/{holder}/nests",
+    status_code=status.HTTP_200_OK,
+    responses=registry.get_exception_responses(
+        exceptions.NotFound,
+    ),
+)
 async def get_nests(
     holder: typing.Annotated[int, paths.IdPath()],
     mediator: cqrs.Mediator = fastapi.Depends(dependencies.inject_mediator),
@@ -26,7 +34,13 @@ async def get_nests(
     return pres_responses.Response(result=result)
 
 
-@router.get("/{holder}", status_code=status.HTTP_200_OK)
+@router.get(
+    "/{holder}",
+    status_code=status.HTTP_200_OK,
+    responses=registry.get_exception_responses(
+        exceptions.NotFound,
+    ),
+)
 async def get_holder_info(
     holder: typing.Annotated[int, paths.IdPath()],
     mediator: cqrs.Mediator = fastapi.Depends(dependencies.inject_mediator),

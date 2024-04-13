@@ -11,7 +11,12 @@ Base = mapper_registry.generate_base()
 class Company(Base):
     __tablename__ = "companies"
     __table_args__ = (
-        sqlalchemy.UniqueConstraint("inn", "kpp", name="inn_kpp_unique_index", comment="Уникальный индекс ИНН КПП"),
+        sqlalchemy.UniqueConstraint(
+            "inn",
+            "kpp",
+            name="inn_kpp_unique_index",
+            comment="Уникальный индекс ИНН КПП",
+        ),
     )
     id = sqlalchemy.Column(
         sqlalchemy.Integer,
@@ -40,6 +45,13 @@ class Company(Base):
 
 class Locations(Base):
     __tablename__ = "locations"
+    __table_args__ = (
+        sqlalchemy.UniqueConstraint(
+            "address",
+            name="inn_kpp_unique_index",
+            comment="Уникальный индекс для локации",
+        ),
+    )
     id = sqlalchemy.Column(
         sqlalchemy.Integer,
         primary_key=True,
@@ -68,7 +80,7 @@ class Devices(Base):
         sqlalchemy.UniqueConstraint(
             "nest_id",
             "name",
-            name="inn_kpp_unique_index",
+            name="nest_id_device_name_unique_index",
             comment="Уникальный индекс Идентификатор узла + название устройства",
         ),
     )
@@ -97,6 +109,14 @@ class Devices(Base):
 
 class TechNest(Base):
     __tablename__ = "tech_nests"
+    __table_args__ = (
+        sqlalchemy.UniqueConstraint(
+            "holder_id",
+            "name",
+            name="holder_id_device_name_unique_index",
+            comment="Уникальный индекс владелец + название узла",
+        ),
+    )
     id = sqlalchemy.Column(
         sqlalchemy.Integer,
         primary_key=True,

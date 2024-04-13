@@ -1,10 +1,10 @@
-import typing
-
 import fastapi
 from starlette import status
 
+from domain import exceptions
 from presentation import dependencies
-from presentation.models import paths, requests
+from presentation.errors import registry
+from presentation.models import requests
 from presentation.models import responses as pres_responses
 from service_layer import cqrs
 from service_layer.models import commands
@@ -16,15 +16,20 @@ router = fastapi.APIRouter(
 )
 
 
-@router.put("/{nest}/device", status_code=status.HTTP_201_CREATED)
+@router.put(
+    "/device",
+    status_code=status.HTTP_201_CREATED,
+    responses=registry.get_exception_responses(
+        exceptions.AlreadyExists,
+        exceptions.NotFound,
+    ),
+)
 async def add_device(
-    nest: typing.Annotated[int, paths.IdPath()],
     command: requests.CommandRequest[commands.AddDevice],
     mediator: cqrs.Mediator = fastapi.Depends(dependencies.inject_mediator),
 ) -> pres_responses.Response[service_responses.DeviceAdded]:
     """
     Добавляет новое устройство в технический узел
     """
-    assert command.body.nest == nest
     result = await mediator.send(command.body)
     return pres_responses.Response(result=result)

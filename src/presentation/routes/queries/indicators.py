@@ -3,8 +3,9 @@ import typing
 import fastapi
 from starlette import status
 
-from domain import models
+from domain import exceptions, models
 from presentation import dependencies
+from presentation.errors import registry
 from presentation.models import paths
 from presentation.models import responses as pres_responses
 from service_layer import cqrs
@@ -13,6 +14,7 @@ from service_layer.models import queries, responses
 router = fastapi.APIRouter(
     prefix="/indicators",
     tags=["Показатели на индикаторах", "Queries"],
+    responses=registry.get_exception_responses(exceptions.NotFound),
 )
 
 
@@ -26,7 +28,7 @@ async def get_nest_indicators(
     return pres_responses.Response(result=result)
 
 
-@router.get("/nest/{nest}/devices/", status_code=status.HTTP_200_OK)
+@router.get("/nest/{nest}/devices", status_code=status.HTTP_200_OK)
 async def get_devices_indicators(
     nest: typing.Annotated[int, paths.IdPath()],
     mediator: cqrs.Mediator = fastapi.Depends(dependencies.inject_mediator),

@@ -3,8 +3,9 @@ import typing
 import fastapi
 from starlette import status
 
-from domain import models
+from domain import exceptions, models
 from presentation import dependencies
+from presentation.errors import registry
 from presentation.models import paths, requests
 from service_layer import cqrs
 from service_layer.models import commands
@@ -12,6 +13,9 @@ from service_layer.models import commands
 router = fastapi.APIRouter(
     prefix="/indicators",
     tags=["Показатели на индикаторах", "Commands"],
+    responses=registry.get_exception_responses(
+        exceptions.NotFound,
+    ),
 )
 
 

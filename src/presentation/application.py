@@ -3,14 +3,20 @@ import functools
 import typing
 
 import fastapi
+import pydantic
+from fastapi import exceptions as fastapi_exceptions
 from fastapi import routing
 from fastapi.middleware import cors
 from fastapi.openapi.utils import get_openapi
 from starlette.middleware.base import RequestResponseEndpoint
 
+from domain import exceptions
+from presentation.errors import handlers as error_handlers
+from presentation.errors import registry
+from presentation.middlewares import logging_middleware
+
 __all__ = ("create",)
 
-from presentation.middlewares import logging_middleware
 
 MiddlewareAlias: typing.TypeAlias = typing.Callable[
     [
@@ -76,7 +82,11 @@ def create(
     if global_dependencies is None:
         global_dependencies = []
     # Инициализирует приложение FastAPI
-    app = fastapi.FastAPI(**kwargs, dependencies=global_dependencies)
+    app = fastapi.FastAPI(
+        **kwargs,
+        dependencies=global_dependencies,
+        responses=registry.get_exception_responses(Exception, fastapi_exceptions.RequestValidationError),
+    )
 
     # Include REST API routers
     for router in command_routers:
@@ -87,7 +97,13 @@ def create(
         app.include_router(router)
 
     # Расширяет default обработчики ошибок FastAPI
-    pass
+    # Расширяет default обработчики ошибок FastAPI
+    app.exception_handler(fastapi_exceptions.RequestValidationError)(
+        error_handlers.pydantic_request_validation_errors_handler
+    )
+    app.exception_handler(pydantic.ValidationError)(error_handlers.pydantic_request_validation_errors_handler)
+    app.exception_handler(exceptions.AlreadyExists)(error_handlers.already_exists_handler)
+    app.exception_handler(exceptions.NotFound)(error_handlers.not_found_handler)
 
     if middlewares is None:
         middlewares = []

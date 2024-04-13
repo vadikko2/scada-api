@@ -1,4 +1,4 @@
-from domain import models
+from domain import exceptions, models
 from infrastructire import storages
 from infrastructire import uow as unit_of_work
 from service_layer.cqrs import requests
@@ -21,6 +21,8 @@ class GetHolderHandler(requests.RequestHandler[queries.Holder, responses.Holder 
     async def handle(self, request: queries.Holder) -> responses.Holder | None:
         async with self.uow.transaction() as uow:
             holder_info = await uow.repository.get_holder(request.holder)
+            if holder_info is None:
+                raise exceptions.NotFound(f"Holder with id {request.holder} not found")
             return responses.Holder(**holder_info.model_dump(mode="json"))
 
 
@@ -38,6 +40,9 @@ class GetTechNestsHandler(requests.RequestHandler[queries.TechNests, responses.T
 
     async def handle(self, request: queries.TechNests) -> responses.TechNests:
         async with self.uow.transaction() as uow:
+            holder = await uow.repository.get_holder(holder=request.holder)
+            if holder is None:
+                raise exceptions.NotFound(f"Holder with id {request.holder} not found")
             nests = await uow.repository.get_nests_by_holder(request.holder)
             return responses.TechNests(holder=request.holder, tech_nests=nests)
 
@@ -56,6 +61,9 @@ class GetDevicesHandler(requests.RequestHandler[queries.Devices, responses.Devic
 
     async def handle(self, request: queries.Devices) -> responses.Devices:
         async with self.uow.transaction() as uow:
+            existed_nest = await uow.repository.get_nest(nest_id=request.nest)
+            if existed_nest is None:
+                raise exceptions.NotFound(f"Nest with nest_id {request.nest} not found")
             devices = await uow.repository.get_devices(request.nest)
             return responses.Devices(nest=request.nest, devices=devices)
 
@@ -65,8 +73,10 @@ class GetTargetNestIndicatorsHandler(requests.RequestHandler[queries.TechNestInd
 
     def __init__(
         self,
+        uow: unit_of_work.UoW,
         tech_nest_storage: storages.TechNestIndicatorValuesStorage,
     ):
+        self.uow = uow
         self.nest_storage = tech_nest_storage
         self._events = []
 
@@ -75,7 +85,13 @@ class GetTargetNestIndicatorsHandler(requests.RequestHandler[queries.TechNestInd
         return self._events
 
     async def handle(self, request: queries.TechNestIndicators) -> responses.TechNestIndicators:
+        async with self.uow.transaction() as uow:
+            existed_nest = await uow.repository.get_nest(nest_id=request.nest)
+            if existed_nest is None:
+                raise exceptions.NotFound(f"Nest with nest_id {request.nest} not found")
         tech_nest_indicator_values = await self.nest_storage.get_value(request.nest)
+        if tech_nest_indicator_values is None:
+            raise exceptions.NotFound(f"Indicator values for nest {request.nest} not found")
         return responses.TechNestIndicators(nest=request.nest, values=tech_nest_indicator_values)
 
 
@@ -98,6 +114,9 @@ class GetDevicesIndicatorsHandler(requests.RequestHandler[queries.DevicesIndicat
     async def handle(self, request: queries.DevicesIndicators) -> responses.DeviceIndicators:
         indicators: list[models.DeviceIndicators] = []
         async with self.uow.transaction() as uow:
+            existed_nest = await uow.repository.get_nest(nest_id=request.nest)
+            if existed_nest is None:
+                raise exceptions.NotFound(f"Nest with nest_id {request.nest} not found")
             devices: list[models.Device] = await uow.repository.get_devices(nest=request.nest)
             devices_ids = [device.id for device in devices]
 

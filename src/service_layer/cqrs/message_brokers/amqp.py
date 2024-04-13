@@ -20,4 +20,4 @@ class AMQPMessageBroker:
         )
 
     async def send_message(self, message: protocol.Message) -> None:
-        await self.publisher.publish(message=aio_pika.Message(body=orjson.dumps(message.model_dump(mode="json"))))
+        await self.publisher.__call__(message=aio_pika.Message(body=orjson.dumps(message.model_dump(mode="json"))))

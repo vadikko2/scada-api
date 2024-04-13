@@ -16,23 +16,8 @@ C = typing.TypeVar("C")
 class EventPublisher(typing.Generic[C]):
     channel: C
 
-    async def publish(self, message: M) -> None:
-        """Публикует события в канал. При необходимости делает необходимую обработку."""
-
-
-class FromAmqpToWebsocketPublisher(EventPublisher[fastapi.WebSocket]):
-    channel: fastapi.WebSocket
-    heartbeat: asyncio.Task | None = None
-
-    async def publish(self, message: abc.AbstractIncomingMessage) -> None:
-        message_body = orjson.loads(message.body)
-
-        if message_body.get("type") == "state":
-            self.heartbeat.cancel()
-        payload = message_body.get("payload")
-        if not payload:
-            return
-        await self.channel.send_json(payload.get("payload"))
+    async def __call__(self, message: M) -> None:
+        """Публикует события в канал. При необходимости делает предварительную обработку"""
 
 
 class AMQPPublisher(EventPublisher[abc.AbstractExchange]):
@@ -60,9 +45,28 @@ class AMQPPublisher(EventPublisher[abc.AbstractExchange]):
             max_size=self.max_channel_pool_size,
         )
 
-    async def publish(self, message: abc.AbstractMessage) -> None:
+    async def __call__(self, message: abc.AbstractMessage) -> None:
         async with self.channel_pool.acquire() as channel:
             exchange: aio_pika.Exchange = await channel.declare_exchange(
                 self.exchange_name, type="topic", auto_delete=False
             )
             await exchange.publish(message=message, routing_key=self.routing_key)
+
+
+class AbstractFromAmqpToWebsocketPublisher(EventPublisher[fastapi.WebSocket], abc.ABC):
+    channel: fastapi.WebSocket
+    heartbeat: asyncio.Task | None = None
+
+    def extract_payload(self, message: abc.AbstractIncomingMessage) -> typing.Dict | None:
+        message_body = orjson.loads(message.body)
+
+        if message_body.get("type") == "state":
+            self.heartbeat.cancel()
+        payload = message_body.get("payload")
+        if not payload:
+            return
+        return payload.get("payload")
+
+    @abc.abstractmethod
+    async def __call__(self, message: abc.AbstractIncomingMessage) -> None:
+        ...
