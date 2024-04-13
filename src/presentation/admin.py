@@ -4,13 +4,6 @@ from fastapi_user_auth import admin
 
 from infrastructire import settings as app_settings
 
-# Create AdminSite instance
-# site = admin.AuthAdminSite(
-#     settings=auth_settings.Settings(
-#         database_url=app_settings.get_auth_db_url(),
-#         site_title=app_settings.app_name,
-#     )
-# )
 site = admin.AuthAdminSite(
     settings=auth_settings.Settings(
         database_url="sqlite:///amisadmin.db?check_same_thread=False",

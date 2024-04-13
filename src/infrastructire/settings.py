@@ -28,10 +28,6 @@ class Db(pydantic_settings.BaseSettings, case_sensitive=True):
     model_config = pydantic_settings.SettingsConfigDict(env_prefix="MYSQL_")
 
 
-class AuthDb(Db):
-    model_config = pydantic_settings.SettingsConfigDict(env_prefix="AUTH_")
-
-
 class Redis(pydantic_settings.BaseSettings, case_sensitive=True):
     """Redis config"""
 
@@ -82,11 +78,6 @@ def get_amqp_url() -> str:
 @functools.lru_cache
 def get_mysql_url() -> str:
     return str(Db().dsn)
-
-
-@functools.lru_cache
-def get_auth_db_url() -> str:
-    return str(AuthDb().dsn)
 
 
 @functools.lru_cache
