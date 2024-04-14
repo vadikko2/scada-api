@@ -5,13 +5,10 @@ import typing
 import fastapi
 import pydantic
 from fastapi import exceptions as fastapi_exceptions
-from fastapi import routing
 from fastapi.middleware import cors
-from fastapi.openapi.utils import get_openapi
 from starlette.middleware.base import RequestResponseEndpoint
 
 from domain import exceptions
-from presentation import admin
 from presentation.errors import handlers as error_handlers
 from presentation.errors import registry
 from presentation.middlewares import logging_middleware
@@ -27,35 +24,6 @@ MiddlewareAlias: typing.TypeAlias = typing.Callable[
     ],
     typing.Awaitable[fastapi.Response],
 ]
-
-
-def custom_openapi(app: fastapi.FastAPI):
-    openapi_schema = get_openapi(
-        title=app.title,
-        version=app.version,
-        description="Scada API specification",
-        routes=app.routes,
-    )
-
-    # Add WebSocket route to the schema
-    for route in app.routes:
-        if not isinstance(route, routing.APIWebSocketRoute):
-            continue
-        openapi_schema["paths"][route.path] = {
-            "get": {
-                "summary": route.name,
-                "responses": {
-                    200: {
-                        "description": "WebSocket",
-                    }
-                },
-                "tags": [
-                    "Subscriptions",
-                ],
-            }
-        }
-    app.openapi_schema = openapi_schema
-    return app.openapi_schema
 
 
 def settings_cors(app: fastapi.FastAPI):
@@ -98,7 +66,6 @@ def create(
         app.include_router(router)
 
     # Расширяет default обработчики ошибок FastAPI
-    # Расширяет default обработчики ошибок FastAPI
     app.exception_handler(fastapi_exceptions.RequestValidationError)(
         error_handlers.pydantic_request_validation_errors_handler
     )
@@ -127,11 +94,5 @@ def create(
     if shutdown_tasks:
         for task in shutdown_tasks:
             app.on_event("shutdown")(task)
-
-    # Формируем документацию
-    custom_openapi(app=app)
-
-    # Настраиваем авторизацию
-    admin.site.mount_app(app)
 
     return app

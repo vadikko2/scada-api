@@ -12,7 +12,7 @@ from service_layer.models import commands
 
 router = fastapi.APIRouter(
     prefix="/indicators",
-    tags=["Показатели на индикаторах", "Commands"],
+    tags=["Показатели на индикаторах"],
     responses=registry.get_exception_responses(
         exceptions.NotFound,
     ),

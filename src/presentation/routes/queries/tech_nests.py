@@ -13,7 +13,7 @@ from service_layer.models import queries, responses
 
 router = fastapi.APIRouter(
     prefix="/nests",
-    tags=["Технические узлы", "Queries"],
+    tags=["Технические узлы"],
 )
 
 

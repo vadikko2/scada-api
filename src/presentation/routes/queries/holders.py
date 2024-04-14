@@ -14,7 +14,7 @@ from service_layer.models import responses as service_responses
 
 router = fastapi.APIRouter(
     prefix="/holders",
-    tags=["Владельцы-компании технических узлов", "Queries"],
+    tags=["Владельцы-компании технических узлов"],
 )
 
 
