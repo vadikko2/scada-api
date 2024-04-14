@@ -189,7 +189,7 @@ class IndicatorsGroup(pydantic.BaseModel):
 class VoltageValue(IndicatorValue[decimal.Decimal]):
     """Напряжение"""
 
-    _unit: typing.ClassVar[str] = "V"
+    _unit: typing.ClassVar[str] = "В"
 
 
 class InputPowerIndicators(pydantic.BaseModel):
@@ -221,20 +221,25 @@ class InputPowerIndicatorsGroup(IndicatorsGroup):
     )
 
 
-class PowerConsumptionIndicators(pydantic.BaseModel):
+class PowerConsumptionValue(IndicatorValue[decimal.Decimal]):
     """ "Показатели электропотребления"""
+
+    _unit: typing.ClassVar[str] = "кВ"
+    value: decimal.Decimal = pydantic.Field(ge=0)
 
 
 class CumulativeWaterConsumptionValue(IndicatorValue[decimal.Decimal]):
     """Показатель накопительного расхода воды"""
 
     _unit: typing.ClassVar[str] = "м. куб."
+    value: decimal.Decimal = pydantic.Field(ge=0)
 
 
 class InstantaneousWaterConsumptionValue(IndicatorValue[decimal.Decimal]):
     """Показатель мгновенного расхода воды"""
 
     _unit: typing.ClassVar[str] = "м. куб. / сек"
+    value: decimal.Decimal = pydantic.Field(ge=0)
 
 
 class WaterConsumptionIndicators(pydantic.BaseModel):
@@ -247,7 +252,7 @@ class WaterConsumptionIndicators(pydantic.BaseModel):
 class ConsumptionIndicatorsGroup(IndicatorsGroup):
     """Группа индикаторов потребления"""
 
-    power: PowerConsumptionIndicators = pydantic.Field(description="Показатели электропотребления")
+    power: PowerConsumptionValue = pydantic.Field(description="Показатели электропотребления")
     water: WaterConsumptionIndicators = pydantic.Field(description="Потребление воды")
 
 
@@ -273,12 +278,12 @@ class TechNestIndicators(pydantic.BaseModel):
 class AmmeterValue(IndicatorValue[decimal.Decimal]):
     """Показатель силы тока"""
 
-    _unit: typing.ClassVar[str] = "A"
+    _unit: typing.ClassVar[str] = "А"
     value: decimal.Decimal = pydantic.Field(ge=0)
 
 
 class Frequency(IndicatorValue[decimal.Decimal]):
-    _unit: typing.ClassVar[str] = "HZ"
+    _unit: typing.ClassVar[str] = "Гц"
     value: decimal.Decimal = pydantic.Field(ge=0)
 
 
