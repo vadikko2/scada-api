@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import abc
+import datetime
 import decimal
 import enum
 import functools
@@ -20,7 +21,16 @@ class DeviceStatus(enum.Enum):
     TURNED_OFF = "turned_off"
 
 
-HolderIdField = functools.partial(pydantic.Field, description="Идентификатор владельца технического узла", gt=0)
+class PhaseControl(enum.Enum):
+    NORMAL = "normal"
+    ACCIDENT = "accident"
+
+
+HolderIdField = functools.partial(
+    pydantic.Field,
+    description="Идентификатор владельца технического узла",
+    gt=0,
+)
 
 HolderNameField = functools.partial(
     pydantic.Field,
@@ -94,23 +104,39 @@ DevicesListField = functools.partial(
     default_factory=list,
 )
 
+UpdatedAtField = functools.partial(
+    pydantic.Field,
+    description="Временная метка публикации показателей индикаторов",
+    default_factory=datetime.datetime.now,
+)
+
 
 class TechNest(pydantic.BaseModel):
     """Технический узел"""
 
-    id: int | None = pydantic.Field(description="Идентификатор технического узла", default=None)
+    id: int | None = pydantic.Field(
+        description="Идентификатор технического узла",
+        default=None,
+    )
     name: str = TechNestNameField()
     devices: list[Device] = DevicesListField()
     holder_id: int = HolderIdField()
-    location: TechNestLocation = pydantic.Field(description="Местоположение")
+    location: TechNestLocation = pydantic.Field(
+        description="Местоположение",
+    )
 
-    model_config = pydantic.ConfigDict(from_attributes=True)
+    model_config = pydantic.ConfigDict(
+        from_attributes=True,
+    )
 
 
 class TechNestLocation(pydantic.BaseModel):
     """Локация технического узла"""
 
-    id: int | None = pydantic.Field(description="Идентификатор локации", default=None)
+    id: int | None = pydantic.Field(
+        description="Идентификатор локации",
+        default=None,
+    )
     latitude: decimal.Decimal = LatitudeField()
     longitude: decimal.Decimal = LongitudeField()
     address: str = pydantic.Field()
@@ -132,7 +158,10 @@ class Holder(pydantic.BaseModel):
 class Device(pydantic.BaseModel):
     """Устройство на техническом узле"""
 
-    id: int | None = pydantic.Field(description="Идентификатор устройства", default=None)
+    id: int | None = pydantic.Field(
+        description="Идентификатор устройства",
+        default=None,
+    )
     name: str = DeviceNameField()
     model: str | None = DeviceModelField()
     nest_id: int
@@ -157,22 +186,81 @@ class IndicatorsGroup(pydantic.BaseModel):
     """Группа индикаторов"""
 
 
+class VoltageValue(IndicatorValue[decimal.Decimal]):
+    """Напряжение"""
+
+    _unit: typing.ClassVar[str] = "V"
+
+
+class InputPowerIndicators(pydantic.BaseModel):
+    """Показатели на входе"""
+
+    input_number: int = pydantic.Field(
+        description="Номер входа",
+        json_schema_extra={"nullable": False},
+        gt=0,
+    )
+    supply: bool = pydantic.Field(
+        description="Питание на входе",
+    )
+    voltage: VoltageValue = pydantic.Field(
+        description="Напряжение на входе",
+    )
+
+
+class InputPowerIndicatorsGroup(IndicatorsGroup):
+    """Группа индикаторов электропитания"""
+
+    inputs: list[InputPowerIndicators] = pydantic.Field(
+        description="Показатели на входе",
+        default_factory=list,
+    )
+    phase_control: PhaseControl = pydantic.Field(
+        description="Контроль фазы",
+        default=PhaseControl.NORMAL,
+    )
+
+
+class PowerConsumptionIndicators(pydantic.BaseModel):
+    """ "Показатели электропотребления"""
+
+
+class CumulativeWaterConsumptionValue(IndicatorValue[decimal.Decimal]):
+    """Показатель накопительного расхода воды"""
+
+    _unit: typing.ClassVar[str] = "м. куб."
+
+
+class InstantaneousWaterConsumptionValue(IndicatorValue[decimal.Decimal]):
+    """Показатель мгновенного расхода воды"""
+
+    _unit: typing.ClassVar[str] = "м. куб. / сек"
+
+
+class WaterConsumptionIndicators(pydantic.BaseModel):
+    """Показатели потребления воды"""
+
+    cumulative: CumulativeWaterConsumptionValue = pydantic.Field(description="Накопительный расход")
+    instantaneous: InstantaneousWaterConsumptionValue = pydantic.Field(description="Мгновенный расход")
+
+
+class ConsumptionIndicatorsGroup(IndicatorsGroup):
+    """Группа индикаторов потребления"""
+
+    power: PowerConsumptionIndicators = pydantic.Field(description="Показатели электропотребления")
+    water: WaterConsumptionIndicators = pydantic.Field(description="Потребление воды")
+
+
 class TechNestIndicatorsValues(pydantic.BaseModel):
     """Значения на индикаторах технического узла"""
 
-    class PowerIndicatorsGroup(IndicatorsGroup):
-        """Группа индикаторов электропитания"""
-
-        class PowerInputIndicators(pydantic.BaseModel):
-            """Показатели на входе"""
-
-        inputs: list[PowerInputIndicators] = pydantic.Field(description="Показатели на входе", default=[])
-
-    class ConsumptionIndicatorsGroup(IndicatorsGroup):
-        """Группа индикаторов потребления"""
-
-    power: PowerIndicatorsGroup = pydantic.Field(description="Показатели на группе индикаторов электропитания")
-    consumption: ConsumptionIndicatorsGroup = pydantic.Field(description="Показатели на группе индикаторов потребления")
+    input_power: InputPowerIndicatorsGroup = pydantic.Field(
+        description="Показатели на группе индикаторов электропитания",
+    )
+    consumption: ConsumptionIndicatorsGroup = pydantic.Field(
+        description="Показатели на группе индикаторов потребления",
+    )
+    updated_at: datetime.datetime = UpdatedAtField()
 
 
 class TechNestIndicators(pydantic.BaseModel):
@@ -180,7 +268,6 @@ class TechNestIndicators(pydantic.BaseModel):
 
     nest: int | None = pydantic.Field(description="Идентификатор технического узла")
     values: TechNestIndicatorsValues = pydantic.Field(description="Значения на индикаторах")
-    # TODO добавить временную метку получения показателя
 
 
 class AmmeterValue(IndicatorValue[decimal.Decimal]):
@@ -202,6 +289,7 @@ class DeviceIndicatorsValues(pydantic.BaseModel):
     mode: ModeEnum = pydantic.Field(description="Режим работы", default=ModeEnum.MANUAL)
     frequency: Frequency = pydantic.Field(description="Частота работы")
     status: DeviceStatus = pydantic.Field(description="Статус устройства")
+    updated_at: datetime.datetime = UpdatedAtField()
 
 
 class DeviceIndicators(pydantic.BaseModel):
@@ -210,4 +298,3 @@ class DeviceIndicators(pydantic.BaseModel):
     nest: int | None = pydantic.Field(description="Идентификатор технического узла")
     device: int | None = pydantic.Field(description="Идентификатор устройства")
     values: DeviceIndicatorsValues = pydantic.Field(description="Значения на индикаторах")
-    # TODO добавить временную метку получения показателя
